@@ -1,0 +1,27 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# CLion / JetBrains
+.idea/
+cmake-build-*/
+
+# VS Code
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+host/.venv/
+host/venv/
+
+# Local configuration and logs
+host/config.json
+host/control-deck.log
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini

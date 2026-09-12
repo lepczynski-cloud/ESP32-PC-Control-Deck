@@ -1,0 +1,78 @@
+{
+  "serial_port": "auto",
+  "baud": 115200,
+  "interval_seconds": 2.0,
+  "disk_path": "auto",
+  "log_file": "control-deck.log",
+  "librehardwaremonitor": {
+    "enabled": true,
+    "url": "http://127.0.0.1:8085/data.json",
+    "timeout_seconds": 0.5
+  },
+  "macros": [
+    {
+      "id": 1,
+      "label": "ChatGPT",
+      "action": "url",
+      "value": "https://chatgpt.com/"
+    },
+    {
+      "id": 2,
+      "label": "Ollama",
+      "action": "service",
+      "health_url": "http://127.0.0.1:11434/api/tags",
+      "hidden": true,
+      "value": {
+        "windows": ["ollama", "serve"],
+        "linux": ["ollama", "serve"],
+        "macos": ["ollama", "serve"]
+      }
+    },
+    {
+      "id": 3,
+      "label": "Voice Server",
+      "action": "command",
+      "new_console": true,
+      "value": {
+        "windows": ["cmd.exe", "/c", "C:\\Path\\To\\START_VOICE_SERVER.cmd"],
+        "linux": null,
+        "macos": null
+      },
+      "working_directory": {
+        "windows": "C:\\Path\\To",
+        "linux": null,
+        "macos": null
+      }
+    },
+    {
+      "id": 4,
+      "label": "Terminal",
+      "action": "command",
+      "value": {
+        "windows": ["wt.exe"],
+        "linux": ["x-terminal-emulator"],
+        "macos": ["open", "-a", "Terminal"]
+      }
+    },
+    {
+      "id": 5,
+      "label": "Task Manager",
+      "action": "command",
+      "value": {
+        "windows": ["taskmgr.exe"],
+        "linux": ["gnome-system-monitor"],
+        "macos": ["open", "-a", "Activity Monitor"]
+      }
+    },
+    {
+      "id": 6,
+      "label": "Lock PC",
+      "action": "command",
+      "value": {
+        "windows": ["rundll32.exe", "user32.dll,LockWorkStation"],
+        "linux": ["loginctl", "lock-session"],
+        "macos": ["pmset", "displaysleepnow"]
+      }
+    }
+  ]
+}
