@@ -6,10 +6,21 @@ The project turns the Elecrow 2.8-inch ESP32 Solo Miner LCD Display into a pract
 
 Repository: https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
 
+
+docs/media/ESP32_PC_Control_Deck.jpg
+
+
 ## Demo
 
 YouTube video: Coming soon on https://www.youtube.com/@WojciechLepczynski
 
+```text
+docs/media/control-deck-demo.gif
+```
+
+```markdown
+[ESP32 PC Control Deck demo](docs/media/control-deck-demo.gif)
+```
 
 ## Features
 
