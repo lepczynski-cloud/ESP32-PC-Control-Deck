@@ -2,15 +2,19 @@
 
 All notable changes to this project are documented here.
 
-## [0.3.1] - 2026-09-12
+## [0.3.2] - 2026-09-12
 
 ### Changed
 
+- Renamed the PlatformIO environment to `esp32_pc_control_deck`.
+- Updated all build and upload commands to use `pio run -e esp32_pc_control_deck`.
+- Added explicit target-device information for the Elecrow 2.8-inch ESP32 Solo Miner LCD Display.
+- Added the Elecrow product page to README and hardware documentation.
 - Prepared a clean public repository package for `ESP32-PC-Control-Deck`.
 - Removed the GitHub Actions workflow from the default package to keep the first public release simple.
 - Replaced private local voice-server paths with placeholder paths in public examples.
 - Updated repository links to `https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck`.
-- Rewrote README and publishing notes using plain English and ASCII-only formatting.
+- Kept documentation in plain English and ASCII-only formatting.
 
 ### Fixed
 
@@ -44,7 +48,7 @@ All notable changes to this project are documented here.
 - Serial protocol version increased to 3.
 - Monitor layout now uses contextual right-side values.
 - Default controls are ChatGPT, Ollama, Voice Server, Terminal, Task Manager and Lock PC.
-- Firmware PlatformIO environment renamed to `elecrow_control_deck`.
+- Firmware PlatformIO environment renamed to `esp32_pc_control_deck`.
 - Host bridge renamed to `control_deck_bridge.py`.
 
 ## [0.2.0] - 2026-08-22

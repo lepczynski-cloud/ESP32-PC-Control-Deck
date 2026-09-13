@@ -1,6 +1,14 @@
 # Hardware notes
 
-ESP32 PC Control Deck targets the Elecrow 2.8-inch ESP32 touch display/miner board based on the classic ESP32-WROOM-32 module.
+ESP32 PC Control Deck targets the Elecrow 2.8-inch ESP32 Solo Miner LCD Display based on the classic ESP32-WROOM-32 module. The project was created for the product sold as `2 PACK 2.8inch ESP32 Solo Miner LCD Display Cryptocurrency Solo Miner with 1000KH/s Hashrate`.
+
+Product page:
+
+```text
+https://www.elecrow.com/2-8inch-esp32-miner-lcd-display-2pcs-cryptocurrency-solo-miner-with-1000kh-s-hashrate.html
+```
+
+The tested board behaves like a USB serial device through a CH340 bridge and works with the pinout below.
 
 ## Display and touch pinout
 

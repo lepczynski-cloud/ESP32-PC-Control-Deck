@@ -2,7 +2,7 @@
 
 A USB-connected ESP32 desktop display that monitors a PC and works as a small touch control panel.
 
-The project turns the Elecrow 2.8-inch ESP32 miner-style display into a practical desk device. One USB cable powers the ESP32, sends live telemetry from the PC to the screen, and sends touch-button events back to the computer. No Wi-Fi or Bluetooth is required.
+The project turns the Elecrow 2.8-inch ESP32 Solo Miner LCD Display into a practical desk device. One USB cable powers the ESP32, sends live telemetry from the PC to the screen, and sends touch-button events back to the computer. No Wi-Fi or Bluetooth is required.
 
 Repository: https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
 
@@ -73,15 +73,31 @@ The board uses a classic ESP32-WROOM-32 and a CH340 USB-to-UART bridge. It does 
 
 ## Target hardware
 
-- Elecrow 2.8-inch ESP32 miner LCD display
-- ESP32-WROOM-32-N4
-- 320x240 ILI9341 TFT
+This project was created for this device:
+
+```text
+Elecrow 2 PACK 2.8inch ESP32 Solo Miner LCD Display Cryptocurrency Solo Miner with 1000KH/s Hashrate
+```
+
+Product page:
+
+```text
+https://www.elecrow.com/2-8inch-esp32-miner-lcd-display-2pcs-cryptocurrency-solo-miner-with-1000kh-s-hashrate.html
+```
+
+Tested hardware summary:
+
+- 2.8-inch ESP32 miner-style LCD display
+- ESP32-WROOM-32-N4 module
+- 320x240 ILI9341V TFT
 - XPT2046 resistive touch controller
 - CH340 USB serial bridge
 
 The pinout matches the hardware used in the CrowPanel Pocket Arcade project:
 
+```text
 https://github.com/lepczynski-cloud/crowpanel-pocket-arcade
+```
 
 See `docs/HARDWARE.md` for pinout details.
 
@@ -116,8 +132,8 @@ docs/media/README.md
 Open the repository in CLion with PlatformIO and run:
 
 ```bash
-pio run -e elecrow_control_deck
-pio run -t upload -e elecrow_control_deck
+pio run -e esp32_pc_control_deck
+pio run -t upload -e esp32_pc_control_deck
 ```
 
 On first boot, follow the touch calibration on the display. The calibration is saved in ESP32 preferences.

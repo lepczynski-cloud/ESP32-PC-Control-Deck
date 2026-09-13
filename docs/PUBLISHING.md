@@ -62,13 +62,13 @@ git push -u origin main
 Tag:
 
 ```text
-v0.3.1
+v0.3.2
 ```
 
 Release title:
 
 ```text
-ESP32 PC Control Deck v0.3.1
+ESP32 PC Control Deck v0.3.2
 ```
 
 Suggested release notes:
@@ -77,6 +77,8 @@ Suggested release notes:
 First public release of ESP32 PC Control Deck.
 
 Highlights:
+- created for the Elecrow 2.8-inch ESP32 Solo Miner LCD Display
+- PlatformIO environment renamed to esp32_pc_control_deck
 - flicker-free CPU, RAM, GPU, VRAM, network and disk monitoring
 - PC-synchronized clock in the display header
 - contextual RAM and VRAM values
@@ -89,8 +91,8 @@ Highlights:
 Create and push the tag:
 
 ```bash
-git tag -a v0.3.1 -m "ESP32 PC Control Deck v0.3.1"
-git push origin v0.3.1
+git tag -a v0.3.2 -m "ESP32 PC Control Deck v0.3.2"
+git push origin v0.3.2
 ```
 
 ## Add the YouTube video and GIF

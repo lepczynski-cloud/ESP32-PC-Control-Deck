@@ -38,7 +38,7 @@ except Exception:
     Key = None
     KeyCode = None
 
-APP_VERSION = "0.3.1"
+APP_VERSION = "0.3.2"
 PROTOCOL_PREFIX = "DD:"
 PROTOCOL_VERSION = 3
 CH340_VIDS = {0x1A86}
