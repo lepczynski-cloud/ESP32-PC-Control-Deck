@@ -8,19 +8,8 @@ Repository: https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
 
 ## Demo
 
-YouTube video: PASTE_YOUTUBE_VIDEO_URL_HERE
+YouTube video: Coming soon on https://www.youtube.com/@WojciechLepczynski
 
-Add a short demo GIF here after recording:
-
-```text
-docs/media/control-deck-demo.gif
-```
-
-Then enable this line:
-
-```markdown
-![ESP32 PC Control Deck demo](docs/media/control-deck-demo.gif)
-```
 
 ## Features
 
