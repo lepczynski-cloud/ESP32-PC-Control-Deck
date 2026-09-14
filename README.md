@@ -12,7 +12,7 @@ Repository: https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
 
 ## Demo
 
-YouTube video: Coming soon on https://www.youtube.com/@WojciechLepczynski
+YouTube video: https://www.youtube.com/watch?v=16eqHU4j9Fk
 
 
 ![ESP32 PC Control Deck demo](docs/media/control-deck-demo.gif)
