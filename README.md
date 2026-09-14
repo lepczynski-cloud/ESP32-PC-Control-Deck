@@ -6,14 +6,11 @@ The project turns the Elecrow 2.8-inch ESP32 Solo Miner LCD Display into a pract
 
 Repository: https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
 
-
 ![ESP32 PC Control Deck on desk](docs/media/ESP32_PC_Control_Deck.jpg)
-
 
 ## Demo
 
 YouTube video: https://www.youtube.com/watch?v=16eqHU4j9Fk
-
 
 ![ESP32 PC Control Deck demo](docs/media/control-deck-demo.gif)
 
@@ -151,6 +148,8 @@ If several CH340 serial devices are connected, set the port manually in `host/co
 }
 ```
 
+After confirming that the bridge works, you can enable automatic startup. See the "Start with Windows" section below.
+
 ## Configure the voice-server button
 
 The public example does not include a private local path. Edit your local ignored file:
@@ -224,17 +223,45 @@ If no CPU temperature is available, the display uses a clear fallback:
 
 ## Start with Windows
 
-Run `host/run_windows.bat` once, then execute from the repository root:
+The host bridge can start automatically when you log in to Windows.
+
+First, run the bridge manually at least once from the repository root:
+
+```text
+host\run_windows.bat
+```
+
+This first run creates the local virtual environment, installs Python dependencies, copies `host/config.example.json` to `host/config.json`, and verifies that the bridge can connect to the ESP32.
+
+Make sure the bridge works correctly before enabling autostart. If needed, edit your local configuration file:
+
+```text
+host/config.json
+```
+
+For example, set the correct serial port if several CH340 serial devices are connected:
+
+```json
+{
+  "serial_port": "COM7"
+}
+```
+
+After the bridge works correctly, close it and run this command from the repository root:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\host\install_autostart_windows.ps1
 ```
 
-Remove the startup shortcut with:
+This creates a Windows startup shortcut for the host bridge. On the next login, the bridge should start automatically in the background.
+
+To remove the startup shortcut, run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\host\uninstall_autostart_windows.ps1
 ```
+
+The local `host/config.json` file is ignored by Git. Do not commit it if it contains private paths, custom commands or local machine details.
 
 ## Serial protocol
 
