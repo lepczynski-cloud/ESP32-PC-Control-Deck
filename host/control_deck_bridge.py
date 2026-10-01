@@ -38,7 +38,7 @@ except Exception:
     Key = None
     KeyCode = None
 
-APP_VERSION = "0.3.2"
+APP_VERSION = "0.4.0"
 PROTOCOL_PREFIX = "DD:"
 PROTOCOL_VERSION = 3
 CH340_VIDS = {0x1A86}
@@ -84,33 +84,141 @@ def expand_text(value: Any) -> Any:
     return os.path.expanduser(os.path.expandvars(value))
 
 
-def choose_serial_port(configured: str) -> str | None:
-    if configured and configured.lower() != "auto":
-        return configured
+def _port_text(port: Any) -> str:
+    values = (
+        getattr(port, "description", ""),
+        getattr(port, "manufacturer", ""),
+        getattr(port, "product", ""),
+        getattr(port, "interface", ""),
+        getattr(port, "hwid", ""),
+    )
+    return " ".join(str(value or "") for value in values).upper()
 
-    ports = list(list_ports.comports())
-    if not ports:
-        return None
 
+def _choose_windows_serial_port(ports: list[Any]) -> str | None:
+    """Keep the existing Windows auto-detection behavior unchanged."""
     preferred: list[str] = []
     for port in ports:
-        description = (port.description or "").upper()
-        manufacturer = (port.manufacturer or "").upper()
+        description = (getattr(port, "description", "") or "").upper()
+        manufacturer = (getattr(port, "manufacturer", "") or "").upper()
         if (
-            port.vid in CH340_VIDS
+            getattr(port, "vid", None) in CH340_VIDS
             or "CH340" in description
             or "CH340" in manufacturer
             or "USB-SERIAL" in description
         ):
-            preferred.append(port.device)
+            preferred.append(str(port.device))
 
     if len(preferred) == 1:
         return preferred[0]
     if preferred:
         log("Multiple CH340-like serial ports found: " + ", ".join(preferred))
         return preferred[0]
-
     return None
+
+
+def _posix_serial_score(port: Any, system: str) -> int:
+    """Score likely Control Deck ports on Linux and macOS."""
+    device = str(getattr(port, "device", "") or "")
+    device_lower = device.lower()
+    text = _port_text(port)
+    score = 0
+
+    if getattr(port, "vid", None) in CH340_VIDS:
+        score += 120
+    if "CH340" in text or "CH341" in text:
+        score += 100
+    if "QINHENG" in text or "WCH" in text:
+        score += 80
+    if any(token in text for token in ("USB-SERIAL", "USB SERIAL", "USB2.0-SERIAL")):
+        score += 60
+
+    if system == "Darwin":
+        if "wchusbserial" in device_lower:
+            score += 80
+        elif "usbserial" in device_lower:
+            score += 50
+        if score > 0:
+            if device_lower.startswith("/dev/cu."):
+                score += 35
+            elif device_lower.startswith("/dev/tty."):
+                score += 5
+    elif system == "Linux":
+        if device_lower.startswith("/dev/ttyusb"):
+            score += 60
+        elif device_lower.startswith("/dev/ttyacm"):
+            score += 20
+
+    return score
+
+
+def choose_serial_port(configured: str, ports: list[Any] | None = None) -> str | None:
+    if configured and configured.lower() != "auto":
+        return configured
+
+    ports = list(list_ports.comports()) if ports is None else list(ports)
+    if not ports:
+        return None
+
+    system = platform.system()
+    if system == "Windows":
+        return _choose_windows_serial_port(ports)
+
+    scored = [
+        (_posix_serial_score(port, system), str(port.device))
+        for port in ports
+    ]
+    candidates = sorted(
+        ((score, device) for score, device in scored if score > 0),
+        key=lambda item: (-item[0], item[1]),
+    )
+    if not candidates:
+        return None
+
+    best_score = candidates[0][0]
+    best_devices = [device for score, device in candidates if score == best_score]
+    if len(candidates) > 1:
+        log(
+            "Serial candidates: "
+            + ", ".join(f"{device} ({score})" for score, device in candidates)
+        )
+    return best_devices[0]
+
+
+def _format_vid_pid(port: Any) -> str:
+    vid = getattr(port, "vid", None)
+    pid = getattr(port, "pid", None)
+    if isinstance(vid, int) and isinstance(pid, int):
+        return f"{vid:04X}:{pid:04X}"
+    return "unknown"
+
+
+def print_serial_ports(configured: str) -> int:
+    ports = list(list_ports.comports())
+    if not ports:
+        print("No serial ports are currently visible.")
+        if platform.system() == "Linux":
+            print("Connect the board and check USB permissions for /dev/ttyUSB*.")
+        return 1
+
+    print("Visible serial ports:\n")
+    for port in ports:
+        description = str(getattr(port, "description", "") or "unknown")
+        manufacturer = str(getattr(port, "manufacturer", "") or "unknown")
+        print(f"- {port.device}")
+        print(f"  description: {description}")
+        print(f"  manufacturer: {manufacturer}")
+        print(f"  VID:PID: {_format_vid_pid(port)}")
+
+    selected = choose_serial_port(configured, ports)
+    print()
+    if selected:
+        print(f"Selected port: {selected}")
+        return 0
+
+    print("No CH340-like Control Deck port was selected automatically.")
+    print("Set serial_port manually in host/config.json.")
+    return 1
 
 
 def safe_number(value: float | None, digits: int = 2) -> float | None:
@@ -383,10 +491,13 @@ class LibreHardwareMonitorHttpReader:
                     result[result_key] = selected.value
         except (OSError, urllib.error.URLError, json.JSONDecodeError, TimeoutError):
             if self._reachable is None:
-                log(
-                    "Additional temperatures unavailable. On Windows, run "
-                    "LibreHardwareMonitor and enable Remote Web Server > Run."
-                )
+                if platform.system() == "Windows":
+                    log(
+                        "Additional temperatures unavailable. On Windows, run "
+                        "LibreHardwareMonitor and enable Remote Web Server > Run."
+                    )
+                else:
+                    log(f"Configured temperature endpoint is unavailable: {self.url}")
             self._reachable = False
         except Exception as exc:
             if self._reachable is not False:
@@ -757,8 +868,9 @@ def parse_frame(text: str) -> dict[str, Any] | None:
 
 def build_lhm_reader(config: dict[str, Any]) -> LibreHardwareMonitorHttpReader:
     lhm_config = config.get("librehardwaremonitor", {}) or {}
+    enabled = resolve_platform_value(lhm_config.get("enabled", True))
     return LibreHardwareMonitorHttpReader(
-        enabled=bool(lhm_config.get("enabled", True)),
+        enabled=bool(enabled),
         url=str(lhm_config.get("url", "http://127.0.0.1:8085/data.json")),
         timeout=float(lhm_config.get("timeout_seconds", 0.5)),
     )
@@ -773,17 +885,37 @@ def run(config: dict[str, Any]) -> None:
     psutil.cpu_percent(interval=None)
     previous = current_counters()
     configured_port = str(config.get("serial_port", "auto"))
+    next_posix_port_message = 0.0
+    last_posix_serial_error: tuple[str, str] | None = None
 
     while True:
-        port = choose_serial_port(configured_port)
+        if configured_port and configured_port.lower() != "auto":
+            ports: list[Any] = []
+            port = configured_port
+        else:
+            ports = list(list_ports.comports())
+            port = choose_serial_port(configured_port, ports)
         if not port:
-            log("Control Deck CH340 not found. Retrying...")
+            if platform.system() == "Windows":
+                log("Control Deck CH340 not found. Retrying...")
+            elif time.monotonic() >= next_posix_port_message:
+                log("Control Deck CH340 not found. Retrying...")
+                if ports:
+                    log(
+                        "Visible serial ports: "
+                        + ", ".join(str(item.device) for item in ports)
+                    )
+                else:
+                    log("No serial ports are currently visible.")
+                log("Run the launcher with --list-ports for diagnostics.")
+                next_posix_port_message = time.monotonic() + 10.0
             time.sleep(2.0)
             continue
 
         try:
             log(f"Opening {port} at {baud} baud")
             with serial.Serial(port, baud, timeout=0.05, write_timeout=1) as serial_port:
+                last_posix_serial_error = None
                 time.sleep(2.0)
                 serial_port.reset_input_buffer()
                 serial_port.reset_output_buffer()
@@ -839,7 +971,25 @@ def run(config: dict[str, Any]) -> None:
 
                     time.sleep(0.01)
         except (serial.SerialException, OSError) as exc:
-            log(f"Serial disconnected: {exc}")
+            if platform.system() == "Windows":
+                log(f"Serial disconnected: {exc}")
+            else:
+                error_key = (port, str(exc))
+                if error_key != last_posix_serial_error:
+                    log(f"Serial disconnected: {exc}")
+                    message = str(exc).lower()
+                    if platform.system() == "Linux" and (
+                        "permission denied" in message or "errno 13" in message
+                    ):
+                        log(
+                            "Linux permission hint: check the device group with "
+                            f"'ls -l {port}' and add your user to that group, commonly dialout."
+                        )
+                    elif platform.system() == "Darwin" and port.startswith("/dev/tty."):
+                        log(
+                            "macOS hint: prefer the matching /dev/cu.* port in config.json."
+                        )
+                    last_posix_serial_error = error_key
             time.sleep(2.0)
 
 
@@ -854,6 +1004,11 @@ def main() -> None:
         "--list-temperatures",
         action="store_true",
         help="List temperature sensors exposed by LibreHardwareMonitor and exit",
+    )
+    parser.add_argument(
+        "--list-ports",
+        action="store_true",
+        help="List serial ports, show the selected Control Deck port and exit",
     )
     args = parser.parse_args()
 
@@ -875,6 +1030,8 @@ def main() -> None:
 
     if args.list_temperatures:
         raise SystemExit(build_lhm_reader(config).print_temperature_sensors())
+    if args.list_ports:
+        raise SystemExit(print_serial_ports(str(config.get("serial_port", "auto"))))
 
     log(f"PC Control Deck Bridge {APP_VERSION} on {platform.system()} {platform.release()}")
     run(config)

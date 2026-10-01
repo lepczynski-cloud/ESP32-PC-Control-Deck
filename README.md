@@ -1,6 +1,6 @@
 # ESP32 PC Control Deck
 
-A USB-connected ESP32 desktop display that monitors a PC and works as a small touch control panel.
+A USB-connected ESP32 desktop display that monitors a Windows, macOS or Linux computer and works as a small touch control panel.
 
 The project turns the Elecrow 2.8-inch ESP32 Solo Miner LCD Display into a practical desk device. One USB cable powers the ESP32, sends live telemetry from the PC to the screen, and sends touch-button events back to the computer. No Wi-Fi or Bluetooth is required.
 
@@ -23,7 +23,7 @@ YouTube video: https://www.youtube.com/watch?v=16eqHU4j9Fk
 - GPU usage
 - VRAM usage and used/total memory
 - GPU temperature through `nvidia-smi`
-- optional CPU, system and storage temperatures through LibreHardwareMonitor
+- optional CPU, system and storage temperatures through LibreHardwareMonitor on Windows
 - network download and upload speed
 - disk usage and read/write activity
 - PC clock synchronized from the host bridge
@@ -38,9 +38,9 @@ The default control page contains six buttons:
 | ChatGPT | Open `https://chatgpt.com/` |
 | Ollama | Check local Ollama and start it when needed |
 | Voice Server | Start a local voice-server script after you set its path |
-| Terminal | Open Windows Terminal |
-| Task Manager | Open Task Manager |
-| Lock PC | Lock the Windows session |
+| Terminal | Open the platform terminal |
+| Task Manager | Open the platform system monitor |
+| Lock PC | Lock or sleep the current session |
 
 All labels and actions are configured in `host/config.json`. The example configuration is safe to publish and uses placeholder paths for local scripts.
 
@@ -110,14 +110,17 @@ host/install_autostart_windows.ps1
 host/uninstall_autostart_windows.ps1
 host/tests/test_bridge.py
 docs/HARDWARE.md
+docs/LINUX_MACOS.md
 docs/MACROS.md
 docs/PROTOCOL.md
 docs/TEMPERATURES.md
 docs/PUBLISHING.md
+docs/media/ESP32_PC_Control_Deck.jpg
+docs/media/control-deck-demo.gif
 docs/media/README.md
 ```
 
-## Quick start on Windows
+## Quick start
 
 ### 1. Flash the firmware
 
@@ -130,7 +133,9 @@ pio run -t upload -e esp32_pc_control_deck
 
 On first boot, follow the touch calibration on the display. The calibration is saved in ESP32 preferences.
 
-### 2. Start the host bridge
+The same firmware and serial protocol are used on all supported operating systems. If the display already works on Windows with firmware 0.3.3, it does not need to be flashed again for host bridge 0.4.0.
+
+### 2A. Start the host bridge on Windows
 
 Run:
 
@@ -148,7 +153,42 @@ If several CH340 serial devices are connected, set the port manually in `host/co
 }
 ```
 
-After confirming that the bridge works, you can enable automatic startup. See the "Start with Windows" section below.
+The Windows launcher and Windows actions are unchanged in version 0.4.0.
+
+### 2B. Start the host bridge on macOS or Linux
+
+Run these commands from the extracted repository directory:
+
+```bash
+chmod +x host/run_linux_macos.sh
+./host/run_linux_macos.sh
+```
+
+You can also run the shell script without changing its executable bit:
+
+```bash
+sh host/run_linux_macos.sh
+```
+
+Do not run the `.sh` file through Python. `run_linux_macos.sh` is a shell script, not a Python program.
+
+On the first run, the launcher checks Python, creates `host/.venv`, installs the dependencies, creates `host/config.json` and starts the bridge. Later runs reuse the same environment.
+
+To inspect the detected USB serial ports without starting the bridge:
+
+```bash
+./host/run_linux_macos.sh --list-ports
+```
+
+If automatic detection does not select the board, set the port manually in `host/config.json`:
+
+```json
+{
+  "serial_port": "/dev/cu.wchusbserial1420"
+}
+```
+
+Typical values are `/dev/cu.wchusbserial*` or `/dev/cu.usbserial*` on macOS and `/dev/ttyUSB0` on Linux. See `docs/LINUX_MACOS.md` for permissions, diagnostics and platform limitations.
 
 ## Configure the voice-server button
 
@@ -193,7 +233,7 @@ If Ollama already responds, the bridge does not start a duplicate process. If it
 ollama serve
 ```
 
-## Temperatures on Windows
+## Temperatures
 
 Windows usually does not expose CPU temperature through `psutil`. For more sensors, run LibreHardwareMonitor and enable:
 
@@ -221,47 +261,21 @@ If no CPU temperature is available, the display uses a clear fallback:
 - VRAM row: used/total memory
 - Disk box: read/write activity and optional disk temperature
 
-## Start with Windows
+LibreHardwareMonitor is enabled by default only on Windows. Linux uses temperatures exposed by `psutil` when the operating system provides them. macOS usually reports CPU temperature as unavailable without an additional privileged sensor tool, which this project does not require.
 
-The host bridge can start automatically when you log in to Windows.
+## Start automatically with Windows
 
-First, run the bridge manually at least once from the repository root:
-
-```text
-host\run_windows.bat
-```
-
-This first run creates the local virtual environment, installs Python dependencies, copies `host/config.example.json` to `host/config.json`, and verifies that the bridge can connect to the ESP32.
-
-Make sure the bridge works correctly before enabling autostart. If needed, edit your local configuration file:
-
-```text
-host/config.json
-```
-
-For example, set the correct serial port if several CH340 serial devices are connected:
-
-```json
-{
-  "serial_port": "COM7"
-}
-```
-
-After the bridge works correctly, close it and run this command from the repository root:
+Run `host/run_windows.bat` once, then execute from the repository root:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\host\install_autostart_windows.ps1
 ```
 
-This creates a Windows startup shortcut for the host bridge. On the next login, the bridge should start automatically in the background.
-
-To remove the startup shortcut, run:
+Remove the startup shortcut with:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\host\uninstall_autostart_windows.ps1
 ```
-
-The local `host/config.json` file is ignored by Git. Do not commit it if it contains private paths, custom commands or local machine details.
 
 ## Serial protocol
 

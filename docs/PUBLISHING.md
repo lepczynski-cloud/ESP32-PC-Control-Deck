@@ -9,7 +9,7 @@ https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
 ## GitHub description
 
 ```text
-USB-connected ESP32 PC monitor and touch control deck for system telemetry, ChatGPT, Ollama, local voice services and configurable macros.
+Cross-platform USB-connected ESP32 system monitor and touch control deck for Windows, macOS and Linux.
 ```
 
 ## Suggested topics
@@ -33,6 +33,9 @@ tft-espi
 ili9341
 xpt2046
 usb-serial
+macos
+linux
+cross-platform
 ```
 
 ## Push the initial code
@@ -57,42 +60,42 @@ git commit -m "Initial release: ESP32 PC Control Deck"
 git push -u origin main
 ```
 
-## First release
+## Release 0.4.0
 
 Tag:
 
 ```text
-v0.3.2
+v0.4.0
 ```
 
 Release title:
 
 ```text
-ESP32 PC Control Deck v0.3.2
+ESP32 PC Control Deck v0.4.0
 ```
 
 Suggested release notes:
 
 ```text
-First public release of ESP32 PC Control Deck.
+Cross-platform host bridge release for ESP32 PC Control Deck.
 
 Highlights:
-- created for the Elecrow 2.8-inch ESP32 Solo Miner LCD Display
-- PlatformIO environment renamed to esp32_pc_control_deck
-- flicker-free CPU, RAM, GPU, VRAM, network and disk monitoring
-- PC-synchronized clock in the display header
-- contextual RAM and VRAM values
-- temperature fallbacks through LibreHardwareMonitor
-- ChatGPT, Ollama and local voice-server controls
-- configurable URL, command, service, hotkey and text actions
-- USB-only operation with no Wi-Fi or Bluetooth requirement
+- official Windows, macOS and Linux host support
+- unchanged Windows launcher and Windows macro behavior
+- improved macOS CH340 detection with /dev/cu.* preference
+- improved Linux /dev/ttyUSB* detection and permission guidance
+- new --list-ports serial diagnostic
+- safer run_linux_macos.sh setup and dependency checks
+- platform-aware LibreHardwareMonitor defaults
+- 12 automated host tests
+- existing firmware 0.3.3 remains compatible through protocol version 3
 ```
 
 Create and push the tag:
 
 ```bash
-git tag -a v0.3.2 -m "ESP32 PC Control Deck v0.3.2"
-git push origin v0.3.2
+git tag -a v0.4.0 -m "ESP32 PC Control Deck v0.4.0"
+git push origin v0.4.0
 ```
 
 ## Add the YouTube video and GIF

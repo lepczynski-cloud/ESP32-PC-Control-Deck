@@ -117,6 +117,12 @@ Examples:
 }
 ```
 
+The public example keeps the Windows commands unchanged and provides separate Linux and macOS commands. Linux desktop environments use different terminal and system-monitor applications, so edit only the `linux` value when the default command is not installed.
+
+On macOS, `hotkey` and `text` actions may require Accessibility permission for the terminal or Python host. URL and command actions do not use keyboard injection.
+
+See `LINUX_MACOS.md` for the complete platform setup and troubleshooting guide.
+
 ## Security boundary
 
 The display cannot submit an arbitrary command string. It can only submit an ID from 1 to 6. The bridge maps that ID to a command already present in the local ignored configuration file.

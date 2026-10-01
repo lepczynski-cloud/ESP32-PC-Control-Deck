@@ -2,6 +2,37 @@
 
 All notable changes to this project are documented here.
 
+## [0.4.0] - 2026-10-01
+
+### Added
+
+- Official macOS and Linux quick-start instructions and troubleshooting guide.
+- `--list-ports` diagnostic command for visible serial devices and automatic selection.
+- macOS recognition for `/dev/cu.wchusbserial*` and `/dev/cu.usbserial*` devices even when USB metadata is incomplete.
+- Linux recognition for common `/dev/ttyUSB*` CH340 devices and a permission hint for access errors.
+- `--setup-only` mode in `run_linux_macos.sh`.
+- Automated tests for Windows, macOS and Linux serial-port selection and platform configuration.
+
+### Changed
+
+- Improved `run_linux_macos.sh` with Python version checks, clearer setup errors, dependency-change detection and argument forwarding.
+- macOS now prefers the non-blocking `/dev/cu.*` port over the matching `/dev/tty.*` port.
+- LibreHardwareMonitor remains enabled by default on Windows and is disabled by default on macOS and Linux.
+- Host bridge version increased to 0.4.0. Firmware protocol remains version 3 and firmware 0.3.3 stays compatible.
+
+### Compatibility
+
+- Windows launcher, Windows macro commands and firmware behavior are unchanged.
+
+## [0.3.3] - 2026-09-13
+
+### Fixed
+
+- Fixed README media rendering by using Markdown image syntax for the project JPG and demo GIF.
+- Added repository placeholder media files so the README does not show broken images before real media is added.
+- Added Git attributes for JPG and GIF binary files.
+- Updated release and publishing notes to version 0.3.3.
+
 ## [0.3.2] - 2026-09-12
 
 ### Changed

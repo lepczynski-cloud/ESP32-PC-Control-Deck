@@ -619,7 +619,7 @@ void setup() {
   JsonDocument hello;
   hello["type"] = "hello";
   hello["device"] = "ESP32 PC Control Deck";
-  hello["firmware"] = "0.3.2";
+  hello["firmware"] = "0.3.3";
   hello["protocol"] = PROTOCOL_VERSION;
   sendFrame(hello);
 }

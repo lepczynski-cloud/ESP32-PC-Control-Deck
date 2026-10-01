@@ -26,10 +26,10 @@ Treat `host/config.json` as executable local configuration:
 
 ## Local HTTP checks
 
-The default configuration makes read-only requests to:
+The default configuration can make read-only requests to:
 
-- LibreHardwareMonitor at `http://127.0.0.1:8085/data.json`,
-- Ollama at `http://127.0.0.1:11434/api/tags`.
+- LibreHardwareMonitor at `http://127.0.0.1:8085/data.json` on Windows,
+- Ollama at `http://127.0.0.1:11434/api/tags` when the Ollama button is used.
 
 Do not change these to untrusted remote endpoints without understanding the privacy and network implications.
 

@@ -91,7 +91,7 @@ Sent after boot:
 {
   "type": "hello",
   "device": "ESP32 PC Control Deck",
-  "firmware": "0.3.2",
+  "firmware": "0.3.3",
   "protocol": 3
 }
 ```
