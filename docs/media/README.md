@@ -1,11 +1,12 @@
-# Original photo and demonstration
+# Original project media
 
-This project has two real media assets in the existing Git history:
+These are the original files used by the GitHub README and project website:
 
 - `ESP32_PC_Control_Deck.jpg`
 - `control-deck-demo.gif`
 
-The build copies the original assets to the static site at `/media/`.
-If the source files are absent after a full replacement, CI searches earlier commits for the originals. It rejects the old placeholder files.
+Both files show the actual hardware. Keep their filenames unchanged when replacing them.
 
-If you add new photos or a new GIF later, commit them here using the same filenames. They will automatically replace the website media on the next successful deployment.
+The GIF is larger than the 25 MiB file limit for Cloudflare Workers static assets. During the website build, `scripts/build_site_release.py` creates a smaller animated copy in `dist/media/control-deck-demo.gif`. The original file in this directory is never modified. The photo is copied unchanged.
+
+Commit any replacement photo or GIF to this directory. A successful Cloudflare build then republishes it automatically with the current firmware version and PC bridge package.

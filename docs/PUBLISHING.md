@@ -14,27 +14,19 @@ Website: `https://esp32-pc-control-deck.lepczynski.it/`
 
 Topics:
 
-`esp32`, `platformio`, `elecrow`, `pc-monitor`, `system-monitor`, `macropad`, `cyberdeck`, `usb-serial`, `ollama`, `local-ai`, `python`, `pyserial`, `tft-espi`, `ili9341`, `xpt2046`, `cloudflare-pages`, `esp-web-tools`
+`esp32`, `platformio`, `elecrow`, `pc-monitor`, `system-monitor`, `macropad`, `cyberdeck`, `usb-serial`, `ollama`, `local-ai`, `python`, `pyserial`, `tft-espi`, `ili9341`, `xpt2046`, `cloudflare-workers`, `esp-web-tools`
 
 ## Full repository replacement
 
-Use a normal commit on the existing `main` branch. Do not recreate the repository with a new unrelated Git history. It is recommended to keep the real JPG and GIF in `docs/media/` untouched. If those source files are missing after replacement, the CI workflow can restore them from earlier Git commits to the static site. It will reject placeholder media and fail when real media are unavailable.
+Replace the contents of the existing `main` branch with this repository, keeping the real JPG and GIF in `docs/media/`. Keep its existing Git history. Run `git add -A`, commit and push to `main`.
 
-Upload the entire replacement package, including hidden `.github/workflows/`, the `site/` folder, the `scripts/` folder, `host/`, `src/` and the documentation.
+No GitHub Actions workflow or `cloudflare-pages` branch is needed. Cloudflare Workers Builds watches `main` directly, builds firmware with `bash scripts/build_pages.sh` and publishes the generated static assets with `npx wrangler deploy`. Do not edit the generated `dist/` directory or commit compiled binaries.
 
-Use `git add -A`, commit, and push to `main`. The GitHub Actions workflow builds and publishes automatically. Do not manually upload firmware binaries or modify `cloudflare-pages`.
-
-For one-time Cloudflare Pages setup, use [WEB_INSTALLER.md](WEB_INSTALLER.md).
-
-## Website deployment
-
-The generated `cloudflare-pages` branch contains the latest successfully built firmware, PC bridge and a locally bundled ESP Web Tools installer from the same source commit. The live site is then automatically deployed by Cloudflare Pages Git integration.
-
-The user must still install the small Python PC bridge after flashing; this cannot be done by the web firmware installer.
+For the one-time Workers Git setup, follow [WEB_INSTALLER.md](WEB_INSTALLER.md). Firmware is published only after a full successful build. Users must still install the PC bridge to use system monitoring and touch macros.
 
 ## Media and video
 
-The website serves the real image and GIF through Cloudflare Pages:
+The website serves the real image and GIF through Cloudflare Workers Static Assets:
 
 - `/media/ESP32_PC_Control_Deck.jpg`
 - `/media/control-deck-demo.gif`

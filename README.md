@@ -6,7 +6,7 @@ A small ESP32 touchscreen that monitors your computer and runs six configurable 
 **Full demo video:** https://www.youtube.com/watch?v=16eqHU4j9Fk  
 **Repository:** https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
 
-[![ESP32 PC Control Deck on a desk](https://esp32-pc-control-deck.lepczynski.it/media/ESP32_PC_Control_Deck.jpg)](https://esp32-pc-control-deck.lepczynski.it/)
+[![ESP32 PC Control Deck on a desk](docs/media/ESP32_PC_Control_Deck.jpg)](https://esp32-pc-control-deck.lepczynski.it/)
 
 ## What it does
 
@@ -14,7 +14,7 @@ A small ESP32 touchscreen that monitors your computer and runs six configurable 
 
 **Touch macros:** ChatGPT, local Ollama, voice server, terminal, system monitor / Task Manager, and lock PC. Button labels and actions are configured locally in `host/config.json` and can be changed without editing the ESP32 firmware.
 
-[![Actual ESP32 PC Control Deck demo](https://esp32-pc-control-deck.lepczynski.it/media/control-deck-demo.gif)](https://www.youtube.com/watch?v=16eqHU4j9Fk)
+[![Actual ESP32 PC Control Deck demo](docs/media/control-deck-demo.gif)](https://www.youtube.com/watch?v=16eqHU4j9Fk)
 
 The USB-C connector on this classic ESP32-WROOM-32 board connects through a **CH340 USB-to-UART bridge**. It does not behave as a native USB HID keyboard. Instead, the display sends numeric macro IDs to a trusted Python program running on the computer.
 
@@ -29,7 +29,7 @@ The USB-C connector on this classic ESP32-WROOM-32 board connects through a **CH
 5. After the board reboots, calibrate the touch screen if prompted.
 6. Download and run the **PC bridge** from the same website. Flashing firmware alone does not enable PC telemetry or macros.
 
-The firmware is built by **GitHub Actions from the current `main` commit**. The page serves the most recent **successful** build. If a build fails, the previously published working installer remains available. The site, manifest, merged firmware and PC bridge download are published together. See [Website deployment](docs/WEB_INSTALLER.md).
+The firmware is built by **Cloudflare Workers Builds directly from the `main` commit**. The page serves the most recent **successful** build. If a build fails, the previously published working installer remains available. The site, manifest, merged firmware and PC bridge download are published together. See [Website deployment](docs/WEB_INSTALLER.md).
 
 **Supported hardware:** [Elecrow 2 PACK 2.8-inch ESP32 Solo Miner LCD Display](https://www.elecrow.com/2-8inch-esp32-miner-lcd-display-2pcs-cryptocurrency-solo-miner-with-1000kh-s-hashrate.html), ESP32-WROOM-32-N4, 4 MB flash, ILI9341V 320 x 240 TFT, XPT2046 resistive touch and CH340 serial.
 
@@ -100,16 +100,23 @@ pio run -t upload -e esp32_pc_control_deck
 
 ## Automatic website and firmware releases
 
-The repository contains the static site in `site/`, its build script in `scripts/`, and a GitHub Actions workflow in `.github/workflows/`.
+This project uses Cloudflare Workers Builds with static assets. No separate hosting server, GitHub Actions, or manually generated firmware binaries are required. The build step is the same as the CrowPanel Rotary Buddy project:
 
-Every successful push to `main`:
+```sh
+bash scripts/build_pages.sh
+```
 
-1. Runs Python tests and builds the firmware using `platformio.ini`.
-2. Packages a merged ESP32 binary, ESP Web Tools manifest, build metadata and the PC bridge from that **same commit**.
-3. Publishes the entire site to the generated `cloudflare-pages` branch.
-4. Triggers Cloudflare Pages to host the new release automatically, after a one-time Git integration setup.
+The deploy step is:
 
-There is no application server, backend or API key in the firmware. The browser installer uses the open source ESP Web Tools client library, bundled during GitHub Actions and hosted locally by Cloudflare Pages alongside the firmware. No separate installer server or runtime CDN is required. See [deployment instructions](docs/WEB_INSTALLER.md).
+```sh
+npx wrangler deploy
+```
+
+A successful build runs the Python tests, compiles the actual PlatformIO firmware from the current Git revision, packages a merged ESP32 image and an ESP Web Tools manifest, builds a PC bridge download, and deploys everything together. The page displays the release version and commit ID. If the build fails, Cloudflare keeps serving the last successful deployment.
+
+The original real GIF is kept intact in `docs/media/`; the build creates a smaller copy when needed because Cloudflare Workers has a 25 MiB limit per static asset. The website serves the photo and compressed version of the same demonstration locally. ESP Web Tools is bundled at build time; no CDN, API token in the device, or server-side application is necessary.
+
+See [Cloudflare deployment](docs/WEB_INSTALLER.md) for the one-time Git connection and custom-domain steps.
 
 ## More projects
 

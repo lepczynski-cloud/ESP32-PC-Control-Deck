@@ -53,6 +53,20 @@ class WebReleaseTests(unittest.TestCase):
             with patch.object(web_build.subprocess, "run", side_effect=fake_run):
                 web_build.merge_firmware(segments, out)
 
+    def test_worker_deploy_config(self):
+        config = json.loads((ROOT / 'wrangler.jsonc').read_text())
+        self.assertEqual(config['name'], 'esp32-pc-control-deck')
+        self.assertEqual(config['assets']['directory'], './dist')
+        self.assertEqual(config['assets']['not_found_handling'], '404-page')
+        self.assertTrue((ROOT / 'scripts/build_pages.sh').is_file())
+        self.assertFalse((ROOT / '.github/workflows/publish-web-installer.yml').exists())
+
+    def test_small_demo_keeps_original_bytes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            target = Path(temp) / 'demo.gif'
+            web_build.write_demo_gif(GIF_SAMPLE, target)
+            self.assertEqual(target.read_bytes(), GIF_SAMPLE)
+
     def test_current_real_media(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

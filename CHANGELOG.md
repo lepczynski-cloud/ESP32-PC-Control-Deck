@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here.
 
+## Website release automation update
+
+- Switched deployment from GitHub Actions and Cloudflare Pages to Cloudflare Workers Builds.
+- Added `scripts/build_pages.sh` and `wrangler.jsonc` for consistent build and deploy settings.
+- Kept the original GIF in Git while automatically optimizing the deployed copy for the 25 MiB Workers static asset limit.
+- Added automatic release validation, including firmware hashes and PC bridge packaging.
+- Updated installation and deployment documentation to use the `main` branch directly.
+
 ## [0.3.3] - 2026-09-13
 
 ### Fixed
@@ -90,7 +98,7 @@ All notable changes to this project are documented here.
 
 - Added an animated static project website with the real project photo and demonstration GIF.
 - Added a browser-based ESP Web Tools installer for the Elecrow ESP32-WROOM-32 display.
-- Added GitHub Actions for reproducible firmware builds and automatic Cloudflare Pages releases.
+- Added automated firmware builds and static website releases (now handled by Cloudflare Workers Builds).
 - The website serves firmware, build metadata and the PC bridge compiled and bundled from the same GitHub commit.
 - Added media recovery from Git history during a full repository replacement, rejecting known draft placeholder images.
 - Published links to the project website and other related hardware projects.

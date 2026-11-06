@@ -35,3 +35,8 @@ site/media/
 node_modules/
 site/vendor/esp-web-tools.js
 site/vendor/ESP-WEB-TOOLS-LICENSE.txt
+
+# Cloudflare Workers builds
+dist/
+.venv-build/
+.wrangler/

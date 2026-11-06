@@ -59,7 +59,7 @@ async function checkLatestBuild() {
   } catch (error) {
     version.textContent = 'Not published';
     commit.textContent = 'Waiting for build';
-    status.textContent = 'The browser installer will be available after the first successful GitHub Actions build.';
+    status.textContent = 'The browser installer will be available after the first successful Cloudflare build.';
     installer.hidden = true;
     download.hidden = true;
   }

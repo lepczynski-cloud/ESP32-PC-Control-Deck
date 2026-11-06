@@ -1,71 +1,61 @@
-# Website, Web Serial installer and automatic releases
+# Website, browser installer and automatic builds
 
-The project website uses static HTML, CSS and JavaScript. GitHub Actions builds firmware and publishes a complete static release. Cloudflare Pages hosts the generated branch. **You do not need to build firmware or upload binaries manually after setup.**
+The project website uses static HTML, CSS and JavaScript. Cloudflare Workers Builds compiles the exact `main` revision, packages ESP32 firmware and the PC bridge, and deploys static assets in one operation. No application server is involved. No manual PlatformIO build, release upload or generated Git branch is needed.
 
-## Deployment settings
+## Cloudflare build configuration
 
-| Field | Value |
+Connect the repository `lepczynski-cloud/ESP32-PC-Control-Deck` to **Cloudflare Workers** using Git integration (not Cloudflare Pages). The settings are the same type used by CrowPanel Rotary Buddy.
+
+| Cloudflare setting | Value |
 | --- | --- |
-| Source repository | `lepczynski-cloud/ESP32-PC-Control-Deck` |
-| Source branch | `main` |
-| GitHub Actions workflow | `.github/workflows/publish-web-installer.yml` |
-| Generated branch | `cloudflare-pages` |
-| Cloudflare Pages project | `esp32-pc-control-deck` |
-| Custom domain | `esp32-pc-control-deck.lepczynski.it` |
-| Framework preset | `None` |
-| Cloudflare build command | leave blank, or `exit 0` if mandatory |
-| Cloudflare output directory | `.` (root of generated branch) |
-| Web installer manifest | `/firmware/manifest.json` |
-| Merged firmware image | `/firmware/esp32-pc-control-deck.bin` |
-| PC bridge package | `/downloads/PC-Control-Deck-PC-Bridge.zip` |
+| Project type | Workers / Static Assets |
+| Worker name | `esp32-pc-control-deck` |
+| Git repository | `lepczynski-cloud/ESP32-PC-Control-Deck` |
+| Production branch | `main` |
+| Root directory | Leave blank (repository root) |
+| Build command | `bash scripts/build_pages.sh` |
+| Deploy command | `npx wrangler deploy` |
+| Build output | Declared in `wrangler.jsonc` as `./dist` (not a dashboard field) |
+| Domain | `esp32-pc-control-deck.lepczynski.it` |
+| Python | `.python-version` pins Python 3.12 |
+
+The `wrangler.jsonc` and `package.json` files are already configured. Do not add an output directory to the deploy command. The build script installs its own Python virtual environment and builds the ESP Web Tools bundle, the firmware and the site. The deploy command publishes only after the build step has succeeded.
 
 ## One-time setup
 
-1. **Back up the current GitHub repository.** Keep its history and existing real `docs/media/ESP32_PC_Control_Deck.jpg` and `docs/media/control-deck-demo.gif` files. Do not recreate the repository or force-push an unrelated orphan history.
-2. Replace the repository files on the existing `main` branch with this package and commit normally. Preserve original media if uploading via Git; the workflow also knows how to recover these two files from earlier commits in the same Git history.
-3. Visit [GitHub Actions](https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck/actions). Wait for the **Build firmware and publish web installer** workflow to pass. It may require **Settings > Actions > General > Workflow permissions > Read and write permissions**, depending on repository policy. Its job uses the built-in `GITHUB_TOKEN`, not a personal access token.
-4. The successful workflow creates `cloudflare-pages`. Never edit this generated branch manually. Build failures stop before publishing.
-5. In [Cloudflare](https://dash.cloudflare.com/), open **Workers & Pages** and create a **Pages** project connected to GitHub. Select `lepczynski-cloud/ESP32-PC-Control-Deck`.
-6. Select **production branch `cloudflare-pages`**, framework **None**, root directory blank, build command blank (`exit 0` if required) and output directory `.`. Deploy.
-7. In the Pages project, use **Custom domains > Set up a domain** to add `esp32-pc-control-deck.lepczynski.it`. When `lepczynski.it` is in the same Cloudflare account, Cloudflare normally creates the necessary DNS entry. Otherwise, follow the CNAME value shown by Cloudflare. You do not need a separate hosting server.
-8. Open `https://esp32-pc-control-deck.lepczynski.it/`, verify the real project photo and GIF, then check that the firmware version is displayed and the PC bridge ZIP is downloadable.
+1. Keep the current GitHub repository and original `docs/media/ESP32_PC_Control_Deck.jpg` and `docs/media/control-deck-demo.gif`. Replace the repository contents with this archive, but do not delete the `.git` folder or erase history.
+2. Commit and push to `main`. The repo contains `scripts/build_pages.sh`, `wrangler.jsonc`, and `package.json`. You do not need GitHub Actions or a `cloudflare-pages` branch.
+3. In the [Cloudflare dashboard](https://dash.cloudflare.com/), open **Workers & Pages**, create or configure a **Worker** connected to your GitHub repository. Select `main`, root directory blank, build command `bash scripts/build_pages.sh` and deploy command `npx wrangler deploy`.
+4. Cloudflare Workers Builds provides a build image with Python, Node.js and npm. The script installs PlatformIO, esptool and Pillow in an isolated Python environment; no credentials or API keys need to be committed. The build may take several minutes the first time because it downloads ESP32 toolchains.
+5. After the successful deployment, open your Worker's **Settings > Domains & Routes** and add custom domain `esp32-pc-control-deck.lepczynski.it` (the zone must be in Cloudflare). Make sure there is no conflicting active Pages custom domain or Worker route with that hostname. The dashboard may create the required DNS record automatically.
+6. Open `https://esp32-pc-control-deck.lepczynski.it/` in Chrome or Edge. Check that the original hardware photo, animated demo and firmware version are visible. Download the bridge ZIP and test firmware flashing over USB with the supported Elecrow ESP32 board.
 
-## How the release stays in sync
+The custom domain and Git connection require one-time Cloudflare dashboard action. Subsequent pushes to `main` are automatic.
 
-The workflow checks out the full Git history, tests Python, bundles ESP Web Tools locally and builds the `esp32_pc_control_deck` PlatformIO environment from the triggering `main` commit. A Python release script combines bootloader, partition data and firmware into a **single ESP32 image**. ESP Web Tools installs that image at address `0x0` for the target ESP32-WROOM-32 board. It also builds the PC bridge ZIP from the same checkout, writes the Git SHA to `build-info.json`, verifies the output and only then publishes.
+### Migrating from the old GitHub Actions + Pages configuration
 
-The installer serves the **latest successfully built release**. A failed build leaves the previous website and firmware intact. There is no need for Cloudflare to compile firmware. Do not edit the generated branch.
+The old architecture used GitHub Actions to publish a `cloudflare-pages` branch, followed by Cloudflare Pages Git integration. This version replaces that pipeline. The GitHub Actions workflow was removed from the repo. If an old Pages project is already deployed for the same domain, remove its custom-domain binding before adding the domain to the new Worker. You can keep the old Pages project until the Worker deployment has been tested on its `workers.dev` address. Do not enable both pipelines for the same hostname.
 
-## Real photo and GIF
+## Release consistency
 
-The public source repository already had these files before the site was added:
+`bash scripts/build_pages.sh` obtains the current SHA from `git rev-parse HEAD`, runs Python tests, bundles the browser installer library locally, compiles the `esp32_pc_control_deck` PlatformIO environment, combines the bootloader, partitions and firmware into a single image, and publishes the whole output into `dist/`. The firmware manifest references the merged binary at offset 0. The Python bridge ZIP comes from the same checkout and excludes `host/config.json`. The SHA and firmware digest are checked before deployment.
 
-- `docs/media/ESP32_PC_Control_Deck.jpg`
-- `docs/media/control-deck-demo.gif`
+Only the latest **successful** build is deployed. If firmware, bundling, tests or asset validation fail, the build command exits with a nonzero code and Wrangler is not run. The previous live deployment stays active.
 
-This package does **not** include mock images. If either media file is missing after replacing the source tree, the workflow looks for the last real file in the existing Git history. It rejects the known placeholder files from the early development ZIPs. The resulting website serves the real files locally from `/media/`, so it does not hotlink them from GitHub. If the history is unavailable or contains only placeholders, publication stops with an explicit error. Restore the original images in `docs/media/` and commit them to fix the error.
+Cloudflare Workers Static Assets has a limit of 25 MiB for an individual file. The real GIF in `docs/media/control-deck-demo.gif` is larger than that, so the build automatically generates a reduced-resolution GIF from the original for the website only. The original media remain unchanged in Git and the README.
 
-The README embeds the published Cloudflare media URL, so it will display after the first successful website deployment.
+## Browsers and hardware
 
-## Browser and hardware requirements
+The installer supports the Elecrow 2.8-inch ESP32-WROOM-32 touchscreen with CH340 serial and requires a data-capable USB cable, HTTPS and Chrome or Edge with Web Serial on a desktop computer. Close any serial monitor and the Python PC bridge before flashing. After installation the user must run the **separate PC bridge** for telemetry and touch macros; Web Serial cannot install or configure that desktop software.
 
-The firmware installer is intended only for the original Elecrow 2.8-inch ESP32-WROOM-32 display with CH340 USB serial. It uses ESP Web Tools and the browser's Web Serial support, available in compatible desktop Chrome/Edge browsers over HTTPS. It does not install the computer bridge. The user must separately install Python 3, download the PC bridge package and run its launcher.
+## Privacy and security
 
-Web Serial flashing is a hardware operation. Close serial monitors and the PC bridge first; the USB serial port cannot be used by two programs simultaneously. Use a data-capable cable and confirm that the board matches the documented pinout.
+- No passwords, OpenAI keys or tokens are stored on ESP32.
+- No personal `host/config.json` or local logs are committed or included in PC bridge downloads.
+- The firmware, installer library, static images and download ZIP are served through the same Cloudflare Worker domain. There is no runtime CDN, server, or analytics backend.
+- Only the local PC bridge executes configured commands; ESP32 sends numeric macro IDs over USB.
 
-## Security and deployment notes
-
-- No Cloudflare token, PAT, API key or secret is stored in this repository.
-- GitHub Actions uses `GITHUB_TOKEN` with `contents: write` to publish the generated branch.
-- The user-provided `host/config.json` is excluded from source control and bridge downloads.
-- ESP Web Tools is bundled during GitHub Actions and served from the same Cloudflare Pages domain as the installer. No runtime CDN or backend server is required. The browser still downloads the static firmware files over HTTPS.
-- The generated media, downloads and firmware are served through Cloudflare Pages after deployment.
-- Set the Pages production branch to `cloudflare-pages`, not `main`.
-- Verify GitHub branch protection and Actions permissions if the release branch cannot be created.
-
-## Testing
-
-From the repository root:
+## Developer checks
 
 ```sh
 python -m unittest discover -s host/tests -v
@@ -73,8 +63,4 @@ python -m unittest discover -s scripts/tests -v
 node --check site/app.js
 ```
 
-A successful GitHub workflow performs the actual ESP32 build. A local test without PlatformIO cannot prove that flashing will work on the physical device. Verify the first installation on your hardware before sharing the installer publicly.
-
-## Installer JavaScript
-
-GitHub Actions installs the verified `esp-web-tools@10.4.0` library and bundles its browser entry with esbuild. The generated site hosts `/vendor/esp-web-tools.js` itself. The source repository does not need a checked-in `node_modules/` folder. Third-party license details are included in the generated site when available.
+The full production build is performed by Workers Builds. A local unit test does not prove successful ESP32 flashing: verify the first installation on real hardware before widely sharing the link.

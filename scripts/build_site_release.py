@@ -11,6 +11,7 @@ import sys
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+from io import BytesIO
 
 ENVIRONMENT = "esp32_pc_control_deck"
 FIRMWARE_NAME = "esp32-pc-control-deck.bin"
@@ -70,7 +71,7 @@ def media_bytes(source: Path, filename: str) -> bytes:
 
     # A full repository replacement is still a normal Git commit. The user's
     # existing real media remain in Git history even if absent from the ZIP.
-    # GitHub Actions must check out full history (fetch-depth: 0).
+    # The current checkout should contain the media. Git history is a fallback.
     commits = subprocess.run(
         ["git", "-C", str(source), "rev-list", "HEAD", "--", relative_posix],
         stdout=subprocess.PIPE,
@@ -96,11 +97,54 @@ def media_bytes(source: Path, filename: str) -> bytes:
     )
 
 
+MAX_CLOUDFLARE_ASSET_BYTES = 25 * 1024 * 1024
+
+
+def write_demo_gif(source_bytes: bytes, destination: Path) -> None:
+    """Keep the original GIF in Git but publish a smaller real animation if needed.
+
+    Cloudflare Workers static assets have a 25 MiB per-file limit. This
+    conversion runs only during the website build, never on the ESP32.
+    """
+    if len(source_bytes) <= MAX_CLOUDFLARE_ASSET_BYTES:
+        destination.write_bytes(source_bytes)
+        return
+    from PIL import Image, ImageSequence
+
+    with Image.open(BytesIO(source_bytes)) as original:
+        for width in (640, 480, 360):
+            frames, durations = [], []
+            for index, frame in enumerate(ImageSequence.Iterator(original)):
+                frame_duration = frame.info.get("duration", 80) or 80
+                if index % 2:
+                    durations[-1] += frame_duration
+                    continue
+                image = frame.convert("RGB")
+                image.thumbnail((width, width * 9 // 16), Image.Resampling.LANCZOS)
+                frames.append(image)
+                durations.append(frame_duration)
+            frames[0].save(
+                destination, save_all=True, append_images=frames[1:],
+                duration=durations, loop=original.info.get("loop", 0),
+                disposal=2, optimize=True,
+            )
+            if destination.stat().st_size <= MAX_CLOUDFLARE_ASSET_BYTES:
+                print(f"Compressed real demo GIF for Workers: {len(source_bytes)} -> {destination.stat().st_size} bytes")
+                return
+            original.seek(0)
+    raise ValueError("Real GIF is too large for Workers static assets, even after optimization")
+
+
 def copy_media(source: Path, output: Path) -> None:
     target = output / "media"
     target.mkdir(parents=True, exist_ok=True)
     for filename in MEDIA_FILES:
-        (target / filename).write_bytes(media_bytes(source, filename))
+        content = media_bytes(source, filename)
+        destination = target / filename
+        if filename.lower().endswith(".gif"):
+            write_demo_gif(content, destination)
+        else:
+            destination.write_bytes(content)
 
 
 def find_boot_app0() -> Path:
