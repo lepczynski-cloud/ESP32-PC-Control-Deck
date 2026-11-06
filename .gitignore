@@ -40,3 +40,6 @@ site/vendor/ESP-WEB-TOOLS-LICENSE.txt
 dist/
 .venv-build/
 .wrangler/
+
+# Local node lockfile generated during Cloudflare build
+package-lock.json

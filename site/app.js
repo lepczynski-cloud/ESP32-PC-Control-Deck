@@ -1,81 +1,107 @@
 'use strict';
+document.documentElement.classList.add('js');
 
-const byId = id => document.getElementById(id);
+const byId = (id) => document.getElementById(id);
 byId('year').textContent = String(new Date().getFullYear());
 
-const animationTargets = document.querySelectorAll('.reveal');
-if ('IntersectionObserver' in window) {
-  const observer = new IntersectionObserver(entries => {
+if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const revealObserver = new IntersectionObserver((entries, observer) => {
     for (const entry of entries) {
       if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
+        entry.target.classList.add('visible');
         observer.unobserve(entry.target);
       }
     }
-  }, { threshold: 0.1, rootMargin: '0px 0px -26px 0px' });
-  for (const target of animationTargets) observer.observe(target);
+  }, { threshold: 0.08, rootMargin: '0px 0px -25px 0px' });
+  document.querySelectorAll('.reveal').forEach((node) => revealObserver.observe(node));
 } else {
-  for (const target of animationTargets) target.classList.add('is-visible');
+  document.querySelectorAll('.reveal').forEach((node) => node.classList.add('visible'));
 }
 
-const status = byId('install-status');
+const installStatus = byId('install-status');
 const installer = byId('installer-container');
-const version = byId('firmware-version');
-const commit = byId('firmware-commit');
-const download = byId('download-firmware');
-const bridge = byId('download-bridge');
+const firmwareVersion = byId('firmware-version');
+const firmwareCommit = byId('firmware-commit');
+const firmwareDownload = byId('download-firmware');
+const bridgeDownload = byId('download-bridge');
 
-async function installerReady() {
+const getJson = async (path) => {
+  const response = await fetch(path, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`${path} returned HTTP ${response.status}`);
+  return response.json();
+};
+
+async function elementAvailable() {
   if (!window.customElements) return false;
   return Promise.race([
-    window.customElements.whenDefined('esp-web-install-button').then(() => true),
-    new Promise(resolve => setTimeout(() => resolve(false), 8000))
+    customElements.whenDefined('esp-web-install-button').then(() => true),
+    new Promise((resolve) => setTimeout(() => resolve(false), 6500))
   ]);
 }
 
-async function checkLatestBuild() {
+async function checkFirmware() {
   try {
-    const response = await fetch('/firmware/build-info.json', { cache: 'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    if (data.chip_family !== 'ESP32' || !/^[\w.+-]+$/.test(data.version || '') || !/^[0-9a-f]{40}$/.test(data.commit || '') || data.file !== 'esp32-pc-control-deck.bin') {
-      throw new Error('Unexpected firmware metadata');
+    const [info, manifest] = await Promise.all([
+      getJson('/firmware/build-info.json'),
+      getJson('/firmware/manifest.json')
+    ]);
+    const build = manifest.builds && manifest.builds[0];
+    const part = build && build.parts && build.parts[0];
+    if (info.chip_family !== 'ESP32' || !/^[0-9a-f]{40}$/.test(info.commit || '') ||
+        !/^[\w.+-]+$/.test(info.version || '') || info.file !== 'esp32-pc-control-deck.bin' ||
+        info.size_bytes < 65536 || !/^[0-9a-f]{64}$/.test(info.sha256 || '') ||
+        manifest.version !== info.version || build.chipFamily !== 'ESP32' ||
+        build.parts.length !== 1 || part.path !== info.file || part.offset !== 0) {
+      throw new Error('Firmware metadata and manifest do not match');
     }
-    version.textContent = data.version;
-    commit.textContent = data.commit.slice(0, 8);
-    download.href = '/firmware/' + data.file;
-    download.hidden = false;
+
+    firmwareVersion.textContent = info.version;
+    firmwareCommit.textContent = info.commit.slice(0, 10);
+    firmwareDownload.href = '/firmware/' + info.file;
+    firmwareDownload.hidden = false;
 
     if (!window.isSecureContext || !('serial' in navigator)) {
-      status.textContent = 'Firmware is ready. Flashing from the page requires desktop Chrome or Edge over HTTPS.';
+      installStatus.textContent = 'Firmware is available. Use a supported desktop Chrome or Edge browser over HTTPS to flash over USB.';
       return;
     }
-    if (await installerReady()) {
+    if (await elementAvailable()) {
       installer.hidden = false;
-      status.textContent = 'Ready. Connect the supported Elecrow board and close other apps using its COM port.';
+      installStatus.textContent = 'Ready. Connect the Elecrow ESP32, close serial monitors and choose your CH340 port.';
     } else {
-      status.textContent = 'Firmware is ready, but the browser installer could not load. You can download the binary below.';
+      installStatus.textContent = 'Firmware is ready, but the browser installer did not load. Use the binary download or refresh the page.';
     }
   } catch (error) {
-    version.textContent = 'Not published';
-    commit.textContent = 'Waiting for build';
-    status.textContent = 'The browser installer will be available after the first successful Cloudflare build.';
     installer.hidden = true;
-    download.hidden = true;
+    firmwareDownload.hidden = true;
+    firmwareVersion.textContent = 'Unavailable';
+    firmwareCommit.textContent = 'Not deployed';
+    installStatus.textContent = 'Firmware is not available in this deployment: ' + error.message + '. Check the Cloudflare build and assets.';
   }
 }
 
-async function checkPCBridge() {
+async function checkBridge() {
   try {
-    const response = await fetch('/downloads/PC-Control-Deck-PC-Bridge.zip', { method: 'HEAD', cache: 'no-store' });
-    if (!response.ok) throw new Error('PC bridge unavailable');
-    bridge.href = '/downloads/PC-Control-Deck-PC-Bridge.zip';
-    bridge.setAttribute('download', 'PC-Control-Deck-PC-Bridge.zip');
+    const response = await fetch('/downloads/PC-Control-Deck-PC-Bridge.zip', { method: 'GET', headers: { Range: 'bytes=0-3' }, cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    await response.body?.cancel();
   } catch (error) {
-    bridge.href = 'https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck/archive/refs/heads/main.zip';
-    bridge.textContent = 'Download full project';
+    bridgeDownload.href = 'https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck/archive/refs/heads/main.zip';
+    bridgeDownload.textContent = 'Download project from GitHub ↗';
+    bridgeDownload.removeAttribute('download');
+    bridgeDownload.title = `Bridge package not found (${error.message}); download repository instead.`;
   }
 }
 
-checkLatestBuild();
-checkPCBridge();
+byId('play-video').addEventListener('click', () => {
+  const frame = byId('video-frame');
+  const iframe = document.createElement('iframe');
+  iframe.src = 'https://www.youtube-nocookie.com/embed/16eqHU4j9Fk?autoplay=1&rel=0';
+  iframe.title = 'ESP32 PC Control Deck full project walkthrough';
+  iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';
+  iframe.allowFullscreen = true;
+  iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+  frame.replaceChildren(iframe);
+});
+
+checkFirmware();
+checkBridge();

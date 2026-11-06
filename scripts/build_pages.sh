@@ -28,13 +28,13 @@ python3 -m venv .venv-build
 PYTHON="$(pwd)/.venv-build/bin/python"
 PIO="$(pwd)/.venv-build/bin/pio"
 "$PYTHON" -m pip install --disable-pip-version-check --upgrade pip
-"$PYTHON" -m pip install --disable-pip-version-check 'platformio>=6.1,<7' 'esptool>=4.7,<5' 'Pillow>=11,<13'
+"$PYTHON" -m pip install --disable-pip-version-check 'platformio>=6.1,<7' 'esptool>=4.7,<5'
 "$PYTHON" -m pip install --disable-pip-version-check -r host/requirements.txt
 "$PYTHON" -m unittest discover -s host/tests -v
 "$PYTHON" -m unittest discover -s scripts/tests -v
 
 # Pin the Node tools in package.json; run install on the build server, not on the device.
-npm install --include=dev --no-audit --no-fund
+npm install --include=dev --no-audit --no-fund --package-lock=false
 mkdir -p site/vendor
 ./node_modules/.bin/esbuild node_modules/esp-web-tools/dist/web/install-button.js \
   --bundle --format=esm --platform=browser --target=es2022 --minify \

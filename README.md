@@ -1,132 +1,83 @@
 # ESP32 PC Control Deck
 
-A small ESP32 touchscreen that monitors your computer and runs six configurable shortcuts over a single USB cable. Built for the Elecrow 2.8-inch ESP32 Solo Miner LCD Display.
+An open-source desktop companion built around the **Elecrow 2.8-inch ESP32 Solo Miner LCD Display**. The touchscreen shows live PC stats and offers six customizable shortcuts. A single USB cable carries both power and serial data.
 
-**Website and browser installer:** https://esp32-pc-control-deck.lepczynski.it/  
-**Full demo video:** https://www.youtube.com/watch?v=16eqHU4j9Fk  
-**Repository:** https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
+**[Website and browser installer](https://esp32-pc-control-deck.lepczynski.it/)** | **[Full YouTube walkthrough](https://www.youtube.com/watch?v=16eqHU4j9Fk)**
 
-[![ESP32 PC Control Deck on a desk](docs/media/ESP32_PC_Control_Deck.jpg)](https://esp32-pc-control-deck.lepczynski.it/)
+[![Real ESP32 PC Control Deck on my desk](docs/media/ESP32_PC_Control_Deck.jpg)](https://esp32-pc-control-deck.lepczynski.it/)
 
-## What it does
+### What it does
 
-**PC monitor:** live CPU, RAM, GPU and VRAM usage, network download/upload, disk occupancy and activity, PC clock, and temperatures where sensors are available. NVIDIA GPU monitoring uses `nvidia-smi`. Windows CPU and drive temperatures can optionally come from LibreHardwareMonitor.
+The monitor screen displays CPU, RAM, GPU, VRAM, network transfer, disk statistics, clock and temperatures where sensors are available. Touch shortcuts can open ChatGPT, local Ollama, a voice server, Task Manager, a terminal or lock the PC. The actual commands and labels are configured on the computer, not hardcoded into firmware.
 
-**Touch macros:** ChatGPT, local Ollama, voice server, terminal, system monitor / Task Manager, and lock PC. Button labels and actions are configured locally in `host/config.json` and can be changed without editing the ESP32 firmware.
+![Real ESP32 PC Control Deck demonstration](docs/media/control-deck-demo.gif)
 
-[![Actual ESP32 PC Control Deck demo](docs/media/control-deck-demo.gif)](https://www.youtube.com/watch?v=16eqHU4j9Fk)
+The device is a **classic ESP32-WROOM-32 with CH340 USB-to-UART**, not a native USB HID keyboard. Its touch actions are sent over USB to a trusted **Python PC bridge**. The bridge is required for telemetry and macros. You can run the software on Windows, macOS or Linux, with OS-specific limitations.
 
-The USB-C connector on this classic ESP32-WROOM-32 board connects through a **CH340 USB-to-UART bridge**. It does not behave as a native USB HID keyboard. Instead, the display sends numeric macro IDs to a trusted Python program running on the computer.
+## Install from the website
 
-## Flash from your browser
+**No local PlatformIO setup is needed to install the published ESP32 firmware.**
 
-**No local PlatformIO toolchain is needed to install the firmware.**
+1. Open **https://esp32-pc-control-deck.lepczynski.it/** in desktop Chrome or Edge over HTTPS.
+2. Connect the supported Elecrow 2.8-inch ESP32 touchscreen with a USB **data** cable.
+3. Stop any serial monitors and running PC bridge so the CH340 port is free.
+4. Click **Install latest firmware**, select the serial port and follow the prompts.
+5. Download the **PC bridge** from the same page, extract the ZIP and start it on your computer. Firmware alone cannot read your PC metrics or launch programs.
 
-1. Open **https://esp32-pc-control-deck.lepczynski.it/** using desktop **Chrome or Edge** over HTTPS.
-2. Connect the supported Elecrow 2.8-inch ESP32 display using a USB data cable.
-3. Close the PC bridge and any serial monitor. Only one program can access the serial port at a time.
-4. Choose **Flash latest firmware**, select the CH340 port and follow the install prompts.
-5. After the board reboots, calibrate the touch screen if prompted.
-6. Download and run the **PC bridge** from the same website. Flashing firmware alone does not enable PC telemetry or macros.
+**Hardware:** ESP32-WROOM-32-N4, 4 MB flash, ILI9341V 320×240 TFT, XPT2046 resistive touchscreen and CH340 serial bridge. Do not flash this build to a different board without confirming pins, screen and flash layout.
 
-The firmware is built by **Cloudflare Workers Builds directly from the `main` commit**. The page serves the most recent **successful** build. If a build fails, the previously published working installer remains available. The site, manifest, merged firmware and PC bridge download are published together. See [Website deployment](docs/WEB_INSTALLER.md).
+## PC bridge: required
 
-**Supported hardware:** [Elecrow 2 PACK 2.8-inch ESP32 Solo Miner LCD Display](https://www.elecrow.com/2-8inch-esp32-miner-lcd-display-2pcs-cryptocurrency-solo-miner-with-1000kh-s-hashrate.html), ESP32-WROOM-32-N4, 4 MB flash, ILI9341V 320 x 240 TFT, XPT2046 resistive touch and CH340 serial.
+Install **Python 3** on the computer. The bridge runs locally and communicates over USB serial. It does not require Wi-Fi, a cloud backend or device API keys.
 
-## PC bridge: required after flashing
+- **Windows:** Extract the [PC bridge download](https://esp32-pc-control-deck.lepczynski.it/downloads/PC-Control-Deck-PC-Bridge.zip), then run `host\run_windows.bat`. First run creates a Python virtual environment, installs dependencies and copies the example configuration.
+- **macOS / Linux:** From the extracted package, run `sh host/run_linux_macos.sh`. Use `sh host/run_linux_macos.sh --list-ports` to list serial ports.
+- **Custom actions:** Edit your local `host/config.json`, created from `host/config.example.json`, to choose commands and serial port. Never commit this file with private local paths or secrets.
+- **Optional Windows temperatures:** LibreHardwareMonitor can provide local sensor data when its local web server is enabled.
 
-The firmware receives data from the computer. You must also install **Python 3** and keep the bridge running on the computer for monitoring and macros. The bridge uses USB only, not Wi-Fi or Bluetooth.
+For detailed functionality, see [Hardware](docs/HARDWARE.md), [Protocol](docs/PROTOCOL.md), [Macros](docs/MACROS.md), [Temperatures](docs/TEMPERATURES.md) and [macOS/Linux notes](docs/LINUX_MACOS.md).
 
-Download the [PC bridge package](https://esp32-pc-control-deck.lepczynski.it/downloads/PC-Control-Deck-PC-Bridge.zip) and extract it before starting.
+## Automatic Cloudflare build, no GitHub Actions
 
-### Windows
+This repository uses **Cloudflare Workers Builds with Static Assets**. When `main` changes, Cloudflare installs build dependencies, compiles firmware with PlatformIO, creates the ESP Web Tools manifest, packages the Python PC bridge and publishes them together with the static website. Only a **successful** build is deployed, so the page and installer reference the same source commit. The built firmware is not stored in the repository.
 
-Run `host\run_windows.bat` from the extracted folder. The first run creates a Python virtual environment, installs dependencies, copies the example config to `host/config.json` and starts the bridge.
+There are **no GitHub Actions workflows, no `gh-pages` branch requirement, no dedicated application server and no need to build firmware manually** for regular releases.
 
-For autostart after Windows login, run once from the extracted project root:
+### Cloudflare dashboard settings
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\host\install_autostart_windows.ps1
-```
+Create or edit a **Worker** connected to GitHub repository `lepczynski-cloud/ESP32-PC-Control-Deck` (not a separate Pages Git project). Use these settings:
 
-To remove the autostart shortcut:
+| Setting | Value |
+| --- | --- |
+| Git / production branch | `main` |
+| Root directory | Repository root (empty) |
+| Build command | `bash scripts/build_pages.sh` |
+| Deploy command | `npx wrangler deploy` |
+| Output directory | Defined by `wrangler.jsonc` as `./dist` |
+| Worker name | `esp32-pc-control-deck` |
+| Custom domain | `esp32-pc-control-deck.lepczynski.it` |
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\host\uninstall_autostart_windows.ps1
-```
+**Do not set a separate Pages output directory.** `wrangler.jsonc` already defines the Worker Static Assets directory. Connect the domain under **Workers & Pages → Worker → Settings → Domains & Routes** after a successful deployment. If the hostname is currently attached to an old Pages project, remove that binding before assigning it to the Worker. Avoid conflicting DNS/routes for the same hostname. Node.js and Python use supported Cloudflare build-environment versions rather than pinning a release in the repository.
 
-### macOS / Linux
+The production build runs `scripts/build_pages.sh`. This script performs tests, compiles the exact PlatformIO environment, creates a merged image at ESP32 flash offset `0x0`, validates firmware SHA-256 and manifest, and places the site, original device photo, optimized real-device GIF and PC bridge ZIP in `dist/`. ESP Web Tools is bundled into the static output during build. There is no runtime third-party code CDN; the YouTube iframe is loaded only when a visitor plays the video.
 
-Run from the extracted project folder:
+**Development build (optional, not required for normal users):**
 
-```sh
-sh host/run_linux_macos.sh
-```
-
-To list serial ports:
-
-```sh
-sh host/run_linux_macos.sh --list-ports
-```
-
-Some shortcuts and temperature sensors depend on your desktop environment and operating system. On Linux you may need permission to access `/dev/ttyUSB0`. See [macOS and Linux notes](docs/LINUX_MACOS.md).
-
-### Configure macros and sensors
-
-Edit the local `host/config.json` file, which is copied from `host/config.example.json`. Set your voice server launch script, adjust buttons and configure your serial port if auto-detection fails. Do **not** commit personal `host/config.json` files. No account credentials or secrets are stored on the ESP32.
-
-On Windows you can optionally start [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) and enable **Options > Remote Web Server > Run**. The bridge can read local sensor data from `http://127.0.0.1:8085/data.json`.
-
-## How it works
-
-```text
-Windows / macOS / Linux
-  Python bridge: system telemetry + configured macros
-                 |  USB serial via CH340
-                 |
-Elecrow ESP32: PC monitor screen + six touch buttons
-```
-
-The ESP32 handles display and touch input. The PC bridge handles system data and launches trusted, locally configured actions. The protocol consists of newline-delimited JSON messages prefixed with `DD:`. See [Protocol](docs/PROTOCOL.md), [Hardware](docs/HARDWARE.md), [Macros](docs/MACROS.md) and [Temperatures](docs/TEMPERATURES.md).
-
-## Developer build (optional)
-
-The website handles normal firmware installation without needing a build environment. For changing firmware, use PlatformIO or CLion:
-
-```sh
+```bash
 pio run -e esp32_pc_control_deck
 pio run -t upload -e esp32_pc_control_deck
 ```
 
-## Automatic website and firmware releases
+The platform and device libraries in `platformio.ini` are deliberately versioned to avoid unexpected firmware regressions. The website's build environment doesn't require pinning the Node.js or Python runtime versions.
 
-This project uses Cloudflare Workers Builds with static assets. No separate hosting server, GitHub Actions, or manually generated firmware binaries are required. The build step is the same as the CrowPanel Rotary Buddy project:
+## Related projects
 
-```sh
-bash scripts/build_pages.sh
-```
-
-The deploy step is:
-
-```sh
-npx wrangler deploy
-```
-
-A successful build runs the Python tests, compiles the actual PlatformIO firmware from the current Git revision, packages a merged ESP32 image and an ESP Web Tools manifest, builds a PC bridge download, and deploys everything together. The page displays the release version and commit ID. If the build fails, Cloudflare keeps serving the last successful deployment.
-
-The original real GIF is kept intact in `docs/media/`; the build creates a smaller copy when needed because Cloudflare Workers has a 25 MiB limit per static asset. The website serves the photo and compressed version of the same demonstration locally. ESP Web Tools is bundled at build time; no CDN, API token in the device, or server-side application is necessary.
-
-See [Cloudflare deployment](docs/WEB_INSTALLER.md) for the one-time Git connection and custom-domain steps.
-
-## More projects
-
+- [Admin Pocket Toolkit on ESP32](https://esp32-admin-toolkit.lepczynski.it/)
+- [Online Admin Toolkit](https://admintoolkit.lepczynski.it/)
 - [M5Stack Touch Control Deck](https://m5stack-touch-control-deck.lepczynski.it/)
 - [CrowPanel Rotary Buddy](https://crowpanel-rotary-buddy.lepczynski.it/)
-- [Admin Pocket Toolkit](https://admintoolkit.lepczynski.it/)
-- [CrowPanel Pocket Arcade](https://github.com/lepczynski-cloud/crowpanel-pocket-arcade)
-- [FreeDOOM on ESP32](https://github.com/lepczynski-cloud/crowpanel-freedoom)
-- [Scratch to HTML Converter](https://sbtohtml.lepczynski.it/)
+- [Blog](https://lepczynski.it/) and [YouTube channel](https://www.youtube.com/@WojciechLepczynski)
 
 ## License and disclosure
 
-Source code: MIT, see [LICENSE](LICENSE). Third-party case designs retain their own licenses. The display was originally provided by Elecrow for review; this was not a paid sponsorship. See [SECURITY.md](SECURITY.md) for security notes.
+MIT licensed; see [LICENSE](LICENSE) and [SECURITY.md](SECURITY.md). The device was supplied by Elecrow for a review; it was not a paid sponsorship.
