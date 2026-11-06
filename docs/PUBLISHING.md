@@ -1,115 +1,44 @@
-# Publishing guide
+# Publishing the project
 
-Repository URL:
+Repository: https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
 
-```text
-https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck
-```
+Website: https://esp32-pc-control-deck.lepczynski.it/
 
-## GitHub description
+## GitHub About
 
-```text
-Cross-platform USB-connected ESP32 system monitor and touch control deck for Windows, macOS and Linux.
-```
+Description:
 
-## Suggested topics
+> USB-powered ESP32 PC monitor and touchscreen macro deck. Flash the firmware directly from your browser and run a local PC bridge for CPU/GPU stats and shortcuts.
 
-```text
-esp32
-platformio
-clion
-elecrow
-pc-monitor
-system-monitor
-cyberdeck
-macropad
-ollama
-local-ai
-python
-pyserial
-psutil
-librehardwaremonitor
-tft-espi
-ili9341
-xpt2046
-usb-serial
-macos
-linux
-cross-platform
-```
+Website: `https://esp32-pc-control-deck.lepczynski.it/`
 
-## Push the initial code
+Topics:
 
-Run these commands from the extracted project directory:
+`esp32`, `platformio`, `elecrow`, `pc-monitor`, `system-monitor`, `macropad`, `cyberdeck`, `usb-serial`, `ollama`, `local-ai`, `python`, `pyserial`, `tft-espi`, `ili9341`, `xpt2046`, `cloudflare-pages`, `esp-web-tools`
 
-```bash
-git init
-git add .
-git commit -m "Initial release: ESP32 PC Control Deck"
-git branch -M main
-git remote add origin https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck.git
-git push -u origin main
-```
+## Full repository replacement
 
-If the remote is already configured:
+Use a normal commit on the existing `main` branch. Do not recreate the repository with a new unrelated Git history. It is recommended to keep the real JPG and GIF in `docs/media/` untouched. If those source files are missing after replacement, the CI workflow can restore them from earlier Git commits to the static site. It will reject placeholder media and fail when real media are unavailable.
 
-```bash
-git remote -v
-git add .
-git commit -m "Initial release: ESP32 PC Control Deck"
-git push -u origin main
-```
+Upload the entire replacement package, including hidden `.github/workflows/`, the `site/` folder, the `scripts/` folder, `host/`, `src/` and the documentation.
 
-## Release 0.4.0
+Use `git add -A`, commit, and push to `main`. The GitHub Actions workflow builds and publishes automatically. Do not manually upload firmware binaries or modify `cloudflare-pages`.
 
-Tag:
+For one-time Cloudflare Pages setup, use [WEB_INSTALLER.md](WEB_INSTALLER.md).
 
-```text
-v0.4.0
-```
+## Website deployment
 
-Release title:
+The generated `cloudflare-pages` branch contains the latest successfully built firmware, PC bridge and a locally bundled ESP Web Tools installer from the same source commit. The live site is then automatically deployed by Cloudflare Pages Git integration.
 
-```text
-ESP32 PC Control Deck v0.4.0
-```
+The user must still install the small Python PC bridge after flashing; this cannot be done by the web firmware installer.
 
-Suggested release notes:
+## Media and video
 
-```text
-Cross-platform host bridge release for ESP32 PC Control Deck.
+The website serves the real image and GIF through Cloudflare Pages:
 
-Highlights:
-- official Windows, macOS and Linux host support
-- unchanged Windows launcher and Windows macro behavior
-- improved macOS CH340 detection with /dev/cu.* preference
-- improved Linux /dev/ttyUSB* detection and permission guidance
-- new --list-ports serial diagnostic
-- safer run_linux_macos.sh setup and dependency checks
-- platform-aware LibreHardwareMonitor defaults
-- 12 automated host tests
-- existing firmware 0.3.3 remains compatible through protocol version 3
-```
+- `/media/ESP32_PC_Control_Deck.jpg`
+- `/media/control-deck-demo.gif`
 
-Create and push the tag:
+Full video: https://www.youtube.com/watch?v=16eqHU4j9Fk
 
-```bash
-git tag -a v0.4.0 -m "ESP32 PC Control Deck v0.4.0"
-git push origin v0.4.0
-```
-
-## Add the YouTube video and GIF
-
-In `README.md`, replace:
-
-```text
-PASTE_YOUTUBE_VIDEO_URL_HERE
-```
-
-Place the animated demo at:
-
-```text
-docs/media/control-deck-demo.gif
-```
-
-Then enable the GIF Markdown block in `README.md`.
+The device was provided by Elecrow for review. It was not a paid sponsorship.

@@ -2,28 +2,6 @@
 
 All notable changes to this project are documented here.
 
-## [0.4.0] - 2026-10-01
-
-### Added
-
-- Official macOS and Linux quick-start instructions and troubleshooting guide.
-- `--list-ports` diagnostic command for visible serial devices and automatic selection.
-- macOS recognition for `/dev/cu.wchusbserial*` and `/dev/cu.usbserial*` devices even when USB metadata is incomplete.
-- Linux recognition for common `/dev/ttyUSB*` CH340 devices and a permission hint for access errors.
-- `--setup-only` mode in `run_linux_macos.sh`.
-- Automated tests for Windows, macOS and Linux serial-port selection and platform configuration.
-
-### Changed
-
-- Improved `run_linux_macos.sh` with Python version checks, clearer setup errors, dependency-change detection and argument forwarding.
-- macOS now prefers the non-blocking `/dev/cu.*` port over the matching `/dev/tty.*` port.
-- LibreHardwareMonitor remains enabled by default on Windows and is disabled by default on macOS and Linux.
-- Host bridge version increased to 0.4.0. Firmware protocol remains version 3 and firmware 0.3.3 stays compatible.
-
-### Compatibility
-
-- Windows launcher, Windows macro commands and firmware behavior are unchanged.
-
 ## [0.3.3] - 2026-09-13
 
 ### Fixed
@@ -107,3 +85,13 @@ All notable changes to this project are documented here.
 ## [0.1.0] - 2026-08-20
 
 - Initial USB PC monitor and six-button macro prototype.
+
+## Website and installer integration
+
+- Added an animated static project website with the real project photo and demonstration GIF.
+- Added a browser-based ESP Web Tools installer for the Elecrow ESP32-WROOM-32 display.
+- Added GitHub Actions for reproducible firmware builds and automatic Cloudflare Pages releases.
+- The website serves firmware, build metadata and the PC bridge compiled and bundled from the same GitHub commit.
+- Added media recovery from Git history during a full repository replacement, rejecting known draft placeholder images.
+- Published links to the project website and other related hardware projects.
+- Added cross-platform serial port listing for the PC bridge.

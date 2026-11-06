@@ -1,0 +1,17 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+/firmware/*
+  Cache-Control: public, max-age=300, must-revalidate
+
+/firmware/build-info.json
+  Cache-Control: no-store
+
+/firmware/manifest.json
+  Cache-Control: no-store
+
+/media/*
+  Cache-Control: public, max-age=86400

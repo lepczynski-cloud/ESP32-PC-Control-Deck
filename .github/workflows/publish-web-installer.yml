@@ -1,0 +1,95 @@
+name: Build firmware and publish web installer
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: esp32-pc-control-deck-website
+  cancel-in-progress: false
+
+jobs:
+  firmware-and-website:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout code and media history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: host/requirements.txt
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'platformio>=6.1,<7' 'esptool>=4.7,<5'
+          python -m pip install -r host/requirements.txt
+
+      - name: Run host and release tests
+        run: |
+          python -m unittest discover -s host/tests -v
+          python -m unittest discover -s scripts/tests -v
+
+      - name: Set up Node for locally hosted installer
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Bundle ESP Web Tools into the static website
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts esp-web-tools@10.4.0 esbuild@0.24.2
+          mkdir -p site/vendor
+          ./node_modules/.bin/esbuild node_modules/esp-web-tools/dist/web/install-button.js --bundle --format=esm --platform=browser --target=es2022 --minify --outfile=site/vendor/esp-web-tools.js
+          test -s site/vendor/esp-web-tools.js
+          if [ -f node_modules/esp-web-tools/LICENSE ]; then
+            cp node_modules/esp-web-tools/LICENSE site/vendor/ESP-WEB-TOOLS-LICENSE.txt
+          fi
+
+      - name: Build exactly this commit's ESP32 firmware
+        run: pio run -e esp32_pc_control_deck
+
+      - name: Create static site, real media, merged firmware and PC bridge
+        run: |
+          python scripts/build_site_release.py --source . --output .pio/site-output --commit "$GITHUB_SHA"
+
+      - name: Validate release integrity
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('.pio/site-output')
+          info = json.loads((root/'firmware/build-info.json').read_text())
+          manifest = json.loads((root/'firmware/manifest.json').read_text())
+          path = root/'firmware'/manifest['builds'][0]['parts'][0]['path']
+          assert info['commit'] == '${{ github.sha }}'
+          assert manifest['builds'][0]['chipFamily'] == 'ESP32'
+          assert manifest['builds'][0]['parts'][0]['offset'] == 0
+          assert path.stat().st_size > 64*1024
+          assert hashlib.sha256(path.read_bytes()).hexdigest() == info['sha256']
+          assert (root/'media/ESP32_PC_Control_Deck.jpg').read_bytes().startswith(b'\xff\xd8\xff')
+          assert (root/'media/control-deck-demo.gif').read_bytes().startswith((b'GIF87a',b'GIF89a'))
+          assert (root/'downloads/PC-Control-Deck-PC-Bridge.zip').is_file()
+          assert (root/'vendor/esp-web-tools.js').stat().st_size > 20000
+          print('Static release verified for commit',info['commit'][:8])
+          PY
+
+      - name: Publish only after all checks pass
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./.pio/site-output
+          publish_branch: cloudflare-pages
+          force_orphan: true
+          enable_jekyll: false
+          commit_message: 'Publish ESP32 PC Control Deck firmware and website'

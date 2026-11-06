@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a101b">
+  <meta name="description" content="Turn an Elecrow 2.8-inch ESP32 touchscreen into a USB PC monitor and macro control deck. Flash firmware from your browser, download the local PC bridge, and build your own.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ESP32 PC Control Deck | Flash firmware from your browser">
+  <meta property="og:description" content="Live CPU, RAM, GPU and network monitoring, plus six touch shortcuts. One USB cable. Open source.">
+  <meta property="og:image" content="https://esp32-pc-control-deck.lepczynski.it/media/ESP32_PC_Control_Deck.jpg">
+  <meta property="og:url" content="https://esp32-pc-control-deck.lepczynski.it/">
+  <link rel="canonical" href="https://esp32-pc-control-deck.lepczynski.it/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preload" href="/media/ESP32_PC_Control_Deck.jpg" as="image">
+  <link rel="stylesheet" href="/styles.css">
+  <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+  <script type="module" src="/vendor/esp-web-tools.js"></script>
+  <script src="/app.js" defer></script>
+  <title>ESP32 PC Control Deck | USB PC Monitor &amp; Web Installer</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="site-grid" aria-hidden="true"></div>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#top" class="identity" aria-label="ESP32 PC Control Deck home"><span class="identity-icon"><i></i><i></i><i></i><i></i></span><span><b>ESP32</b> / PC CONTROL DECK</span></a>
+      <nav class="nav-links" aria-label="Main navigation"><a href="#features">Features</a><a href="#install">Install</a><a href="#how">PC app</a><a href="#other-projects">Other projects</a></nav>
+      <a class="nav-repo" href="https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-aurora" aria-hidden="true"></div>
+      <div class="container hero-layout">
+        <div class="hero-copy">
+          <div class="overline"><span class="online-dot"></span> SMALL HARDWARE. USEFUL TOOLS.</div>
+          <h1>A little screen.<br><em>A lot more control.</em></h1>
+          <p class="hero-lead">Turn an ESP32 touchscreen into a live PC monitor and one-tap launcher for the tools you use every day.</p>
+          <p class="hero-sub">CPU, RAM, GPU, VRAM, network traffic, disk activity and six touch shortcuts. Everything through a single USB cable.</p>
+          <div class="hero-buttons"><a class="button button-main" href="#install"><span class="button-spark" aria-hidden="true">↯</span> Install firmware <span aria-hidden="true">↗</span></a><a class="button button-ghost" href="https://www.youtube.com/watch?v=16eqHU4j9Fk" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">▶</span> Watch it work</a></div>
+          <div class="trust-line"><span>NO WI-FI</span><span>NO BLUETOOTH</span><span>NO API KEYS</span></div>
+        </div>
+        <div class="hero-media">
+          <div class="orbit orbit-a" aria-hidden="true"></div><div class="orbit orbit-b" aria-hidden="true"></div>
+          <div class="photo-frame"><img src="/media/ESP32_PC_Control_Deck.jpg" alt="Real ESP32 PC Control Deck on a desk, with a 2.8-inch touchscreen and 3D printed enclosure" fetchpriority="high" decoding="async"><span class="photo-label"><span class="online-dot"></span> REAL BUILD / ELECROW 2.8"</span></div>
+          <div class="floating-label floating-one" aria-hidden="true"><span class="label-dot"></span><b>LIVE PC STATS</b><small>CPU / GPU / RAM</small></div>
+          <div class="floating-label floating-two" aria-hidden="true"><span class="label-glyph">↗</span><b>6 TOUCH MACROS</b><small>ChatGPT / Ollama / More</small></div>
+        </div>
+      </div>
+      <div class="container hero-bottom"><span>MADE FOR YOUR DESK</span><span>BUILT WITH PLATFORMIO</span><span>FLASH IN YOUR BROWSER</span><a href="#features" aria-label="Scroll to features">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a></div>
+    </section>
+
+    <div class="marquee" aria-label="Project capabilities"><div class="marquee-track" aria-hidden="true"><span>USB POWER + DATA</span><i>✳</i><span>LIVE TELEMETRY</span><i>✳</i><span>TOUCH MACROS</span><i>✳</i><span>LOCAL OLLAMA</span><i>✳</i><span>OPEN SOURCE</span><i>✳</i><span>USB POWER + DATA</span><i>✳</i><span>LIVE TELEMETRY</span><i>✳</i><span>TOUCH MACROS</span><i>✳</i><span>LOCAL OLLAMA</span><i>✳</i><span>OPEN SOURCE</span><i>✳</i></div></div>
+
+    <section class="section" id="features">
+      <div class="container"><div class="section-intro reveal"><p class="eyebrow">01 / WHAT IT DOES</p><h2>Your everyday tools,<br><span>on one tiny screen.</span></h2><p>It's a simple idea: a live view of your computer, plus a few useful actions without switching windows.</p></div>
+        <div class="features-grid">
+          <article class="feature-block feature-primary reveal"><span class="feature-index">01 / MONITOR</span><div class="feature-copy"><h3>Know what's happening on your PC.</h3><p>Keep CPU, RAM, GPU, VRAM, temperatures (when available), network and disk activity in view while you work.</p><div class="feature-tags"><span>CPU / GPU</span><span>RAM / VRAM</span><span>NETWORK</span><span>DISK</span></div></div><div class="fake-terminal" aria-label="Example of live metrics"><div class="terminal-top"><span class="terminal-led"></span> PC MONITOR <small>EXAMPLE VALUES</small></div><div class="terminal-row"><span>CPU</span><i><b style="--bar:34%"></b></i><strong>34%</strong></div><div class="terminal-row"><span>RAM</span><i><b style="--bar:61%"></b></i><strong>61%</strong></div><div class="terminal-row"><span>GPU</span><i><b style="--bar:27%"></b></i><strong>27%</strong></div><div class="terminal-row"><span>VRAM</span><i><b style="--bar:48%"></b></i><strong>48%</strong></div></div></article>
+          <article class="feature-block feature-secondary reveal"><span class="feature-index">02 / CONTROL</span><div class="feature-copy"><h3>Launch tools with a tap.</h3><p>Open ChatGPT, start local Ollama and voice services, launch system tools or use custom shortcuts.</p><div class="macro-tiles" aria-label="Example shortcut labels"><span>ChatGPT</span><span>Ollama</span><span>Voice Server</span><span>Terminal</span><span>Task Manager</span><span>Lock PC</span></div></div></article>
+        </div>
+        <div class="video-preview reveal"><div class="demo-image"><img src="/media/control-deck-demo.gif" alt="Real animated demonstration of the ESP32 PC Control Deck showing system metrics and touch controls" loading="lazy" decoding="async"></div><div class="video-copy"><span class="eyebrow">REAL DEVICE / REAL ACTIONS</span><h3>See the screen in action.</h3><p>This is the actual project demo. Watch the full build and see what changes between PC monitoring and macros.</p><a href="https://www.youtube.com/watch?v=16eqHU4j9Fk" target="_blank" rel="noopener noreferrer" class="text-arrow">Watch the full YouTube video <span aria-hidden="true">↗</span></a></div></div>
+      </div>
+    </section>
+
+    <section class="section install-section" id="install">
+      <div class="container install-layout">
+        <div class="install-left reveal"><p class="eyebrow">02 / WEB INSTALLER</p><h2>Plug it in.<br><span>Flash it here.</span></h2><p class="install-lead">Skip the local toolchain. The firmware is built automatically from the same GitHub commit as the code and is ready to install from your browser.</p><div class="quick-steps"><div><span>01</span><p><b>Connect the Elecrow ESP32</b><small>Use a data-capable USB cable and a desktop computer.</small></p></div><div><span>02</span><p><b>Close the PC bridge</b><small>Close the app and serial monitors before flashing.</small></p></div><div><span>03</span><p><b>Install with Chrome or Edge</b><small>Select the CH340 serial port and follow the prompts.</small></p></div><div><span>04</span><p><b>Run the separate PC bridge</b><small>Needed for live computer stats and touch macros.</small></p></div></div></div>
+        <div class="installer-card reveal">
+          <div class="installer-top"><span><i class="status-light"></i> ESP32 FLASH</span><span class="chip-badge">ELECROW 2.8"</span></div>
+          <div class="flash-visual" aria-hidden="true"><div class="flash-rings"></div><div class="flash-chip"><span>ESP32</span><small>USB SERIAL</small></div><div class="flash-progress"><span></span></div></div>
+          <div class="build-info"><div><span>BUILD</span><strong id="firmware-version">Checking...</strong></div><div><span>GITHUB COMMIT</span><strong id="firmware-commit">Waiting...</strong></div><div><span>DEVICE</span><strong>ESP32-WROOM-32 / CH340</strong></div></div>
+          <div class="install-status" id="install-status" role="status" aria-live="polite">Checking the published firmware...</div>
+          <div id="installer-container" hidden><esp-web-install-button manifest="/firmware/manifest.json"><button slot="activate" type="button" class="button button-main button-full">Flash latest firmware <span aria-hidden="true">↗</span></button><span slot="unsupported" class="installer-message">Browser flashing requires desktop Chrome or Edge with Web Serial support.</span><span slot="not-allowed" class="installer-message">The installer requires an HTTPS page.</span></esp-web-install-button></div>
+          <div class="installer-downloads"><a id="download-firmware" href="/firmware/esp32-pc-control-deck.bin" hidden download>Download .bin</a><a href="https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck" target="_blank" rel="noopener noreferrer">Manual flashing instructions ↗</a></div>
+          <p class="installer-disclaimer">For the specified <a href="https://www.elecrow.com/2-8inch-esp32-miner-lcd-display-2pcs-cryptocurrency-solo-miner-with-1000kh-s-hashrate.html" target="_blank" rel="noopener noreferrer">Elecrow 2.8-inch ESP32 display</a> only. Flashing is a hardware operation and may reset saved touch calibration. A failed build is never published.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pc-section" id="how"><div class="container"><div class="pc-layout"><div class="pc-copy reveal"><p class="eyebrow">03 / ONE MORE STEP</p><h2>Flash the screen.<br><span>Run the bridge.</span></h2><p>Installing firmware is only half the setup. A small Python app runs on your computer, gathers system data and executes the actions you configure. It communicates with the board over USB serial.</p><div class="pc-warning"><strong>PC bridge required</strong><span>Without the PC app, live CPU/GPU data and launch buttons will not work. This classic ESP32 + CH340 board is not a native USB HID keyboard.</span></div><a id="download-bridge" class="button button-main" href="/downloads/PC-Control-Deck-PC-Bridge.zip" download>Download PC bridge <span aria-hidden="true">↓</span></a><a class="text-arrow" href="https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck#pc-bridge-required-after-flashing" target="_blank" rel="noopener noreferrer">Full setup instructions ↗</a></div>
+          <div class="pc-guide reveal"><div class="guide-head"><span class="tiny-dots"><i></i><i></i><i></i></span> PC BRIDGE / QUICK START</div><div class="guide-row"><span class="os-name">WINDOWS</span><code>host\run_windows.bat</code><small>Python 3 required. The launcher creates the virtual environment on first run.</small></div><div class="guide-row"><span class="os-name">MACOS / LINUX</span><code>sh host/run_linux_macos.sh</code><small>Available sensors and shortcut actions depend on your operating system.</small></div><div class="guide-row guide-last"><span class="os-name">OPTIONAL</span><code>host/config.json</code><small>Customize the six buttons, the serial port and local paths. Keep this file private.</small></div><div class="guide-foot"><span class="online-dot"></span> One USB cable carries power, data and touch events.</div></div>
+        </div></div></section>
+
+    <section class="section projects-section" id="other-projects"><div class="container"><div class="section-intro reveal"><p class="eyebrow">04 / KEEP EXPLORING</p><h2>More small projects.<br><span>More useful ideas.</span></h2><p>ESP32 devices, browser tools and DIY builds from the same workshop.</p></div><div class="projects-grid">
+      <a class="project-tile reveal" href="https://m5stack-touch-control-deck.lepczynski.it/" target="_blank" rel="noopener noreferrer"><span class="project-meta">ESP32-S3 / BLUETOOTH HID</span><span class="project-icon">✳</span><h3>M5Stack Touch Control Deck</h3><p>Wireless touch shortcuts, media controls and a two-time-zone clock.</p><span class="project-open">Explore project ↗</span></a>
+      <a class="project-tile reveal" href="https://crowpanel-rotary-buddy.lepczynski.it/" target="_blank" rel="noopener noreferrer"><span class="project-meta">ESP32 / ROTARY DISPLAY</span><span class="project-icon">◌</span><h3>CrowPanel Rotary Buddy</h3><p>A round multimedia knob with animated on-screen personality.</p><span class="project-open">Explore project ↗</span></a>
+      <a class="project-tile reveal" href="https://admintoolkit.lepczynski.it/" target="_blank" rel="noopener noreferrer"><span class="project-meta">WEB / ADMIN TOOLS</span><span class="project-icon">⌘</span><h3>Admin Pocket Toolkit</h3><p>Practical networking and system calculators, available in the browser.</p><span class="project-open">Explore project ↗</span></a>
+      <a class="project-tile reveal" href="https://github.com/lepczynski-cloud/crowpanel-pocket-arcade" target="_blank" rel="noopener noreferrer"><span class="project-meta">ESP32 / TOUCH GAMES</span><span class="project-icon">▣</span><h3>CrowPanel Pocket Arcade</h3><p>Small touchscreen games running on ESP32 hardware.</p><span class="project-open">Open GitHub ↗</span></a>
+      <a class="project-tile reveal" href="https://github.com/lepczynski-cloud/crowpanel-freedoom" target="_blank" rel="noopener noreferrer"><span class="project-meta">ESP32 / RETRO GAMING</span><span class="project-icon">⊞</span><h3>FreeDOOM on ESP32</h3><p>Playing a classic-style first-person game on a tiny microcontroller.</p><span class="project-open">Open GitHub ↗</span></a>
+      <a class="project-tile reveal" href="https://sbtohtml.lepczynski.it/" target="_blank" rel="noopener noreferrer"><span class="project-meta">BROWSER TOOL / OFFLINE</span><span class="project-icon">↔</span><h3>Scratch to HTML Converter</h3><p>Convert Scratch projects to playable HTML directly in your browser.</p><span class="project-open">Explore project ↗</span></a>
+    </div></div></section>
+  </main>
+  <footer class="footer"><div class="container footer-top"><div><a href="#top" class="identity"><span class="identity-icon"><i></i><i></i><i></i><i></i></span><span><b>ESP32</b> / PC CONTROL DECK</span></a><p>A small, open source, USB-powered helper for your desk.</p></div><div class="footer-links"><a href="https://github.com/lepczynski-cloud/ESP32-PC-Control-Deck" target="_blank" rel="noopener noreferrer">Source code ↗</a><a href="https://www.youtube.com/watch?v=16eqHU4j9Fk" target="_blank" rel="noopener noreferrer">Project video ↗</a><a href="https://lepczynski.it/" target="_blank" rel="noopener noreferrer">Blog ↗</a><a href="https://www.youtube.com/@WojciechLepczynski" target="_blank" rel="noopener noreferrer">YouTube ↗</a></div></div><div class="container footer-bottom"><span>© <span id="year">2026</span> Wojciech Lepczyński</span><span>Static website. Open source. Made for real hardware.</span><span>Display originally provided by Elecrow for review.</span></div></footer>
+</body>
+</html>

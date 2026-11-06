@@ -25,3 +25,13 @@ host/control-deck.log
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Generated website releases
+site/firmware/
+site/downloads/
+site/media/
+
+# Build-time website dependencies and vendored output
+node_modules/
+site/vendor/esp-web-tools.js
+site/vendor/ESP-WEB-TOOLS-LICENSE.txt

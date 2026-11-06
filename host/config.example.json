@@ -5,11 +5,7 @@
   "disk_path": "auto",
   "log_file": "control-deck.log",
   "librehardwaremonitor": {
-    "enabled": {
-      "windows": true,
-      "linux": false,
-      "macos": false
-    },
+    "enabled": true,
     "url": "http://127.0.0.1:8085/data.json",
     "timeout_seconds": 0.5
   },

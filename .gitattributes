@@ -6,3 +6,6 @@
 *.cpp text eol=lf
 *.ini text eol=lf
 *.json text eol=lf
+*.jpg binary
+*.jpeg binary
+*.gif binary
