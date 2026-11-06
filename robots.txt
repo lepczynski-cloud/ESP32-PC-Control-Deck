@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://esp32-pc-control-deck.lepczynski.it/sitemap.xml

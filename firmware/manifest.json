@@ -1,0 +1,15 @@
+{
+  "name": "ESP32 PC Control Deck (Elecrow 2.8-inch)",
+  "version": "0.3.3+66da285a",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        {
+          "path": "esp32-pc-control-deck.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}

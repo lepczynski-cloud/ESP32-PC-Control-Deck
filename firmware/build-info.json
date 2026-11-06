@@ -1,0 +1,11 @@
+{
+  "name": "ESP32 PC Control Deck",
+  "version": "0.3.3+66da285a",
+  "firmware_version": "0.3.3",
+  "commit": "66da285aaed9daedad930b220c1a2f7f4ced8954",
+  "chip_family": "ESP32",
+  "file": "esp32-pc-control-deck.bin",
+  "sha256": "bec45c726b9b5bcb235d52c20b75c91c968b80cae39c6705d27c9dcb1cbe47ff",
+  "size_bytes": 395664,
+  "built_at_utc": "2026-11-06T14:55:33+00:00"
+}
